@@ -9,7 +9,10 @@
   :depends-on (#:hunchentoot
                #:spinneret
                #:lass
+               #:str
                #:local-time)
   :pathname "src"
   :components ((:file "package")
+               (:file "hunchentoot-handler")
+               (:file "test-server")
                (:file "cl-bloggy")))
