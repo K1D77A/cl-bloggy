@@ -3,7 +3,10 @@
 (defclass bloggy-acceptor (hunchentoot:acceptor)
   ((routes
     :initform ()
-    :accessor routes)))
+    :accessor routes)
+   (blog-entries
+    :initform (make-instance 'blog-entries)
+    :accessor blog-entries)))
 
 (deftype route () `(satisfies routep))
 
@@ -19,7 +22,7 @@
 (defun make-route (method url handler)
   (check-type method keyword)
   (check-type url string)
-  (check-type handler (or function symbol))
+  (check-type handler (or function symbol))q
   (list method url handler))
 
 (defmethod add-route (route (acceptor bloggy-acceptor))
