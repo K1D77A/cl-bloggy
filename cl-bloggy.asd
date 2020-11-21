@@ -8,11 +8,13 @@
   :serial t
   :depends-on (#:hunchentoot
                #:spinneret
+               #:alexandria
                #:lass
                #:str
                #:local-time)
   :pathname "src"
   :components ((:file "package")
+               (:file "classes&conditions")
                (:file "hunchentoot-handler")
-               (:file "test-server")
-               (:file "cl-bloggy")))
+               (:file "cl-bloggy")
+               (:file "test-server")))

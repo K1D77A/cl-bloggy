@@ -2,109 +2,54 @@
 
 (in-package #:cl-bloggy)
 
-(defun minute-day-month-year-now (stream)
-  (local-time:with-decoded-timestamp (:minute minute :hour hour :day day
-                                      :month month :year year)
-                                     (local-time:now)
-    (format stream "~A-~A-~A at ~A:~A"
-            day month year hour minute)))
+(defparameter *global-css*
+  '("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css" "https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css"))
 
-(defclass html-skeleton ()
-  ((title
-    :initform "testtitle"
-    :accessor title
-    :initarg :title)
-   (headers
-    :accessor headers
-    :initarg :headers
-    :initform (list
-               "/libraries/google-roboto/roboto.css"
-               "/libraries/normalize/normalize.css"
-               "/libraries/milligram-master/dist/milligram.min.css")
-    :type list)
-   (body
-    :accessor body
-    :initarg :body
-    :documentation "This slot contains a spinneret HTML generation form")
-   (footer
-    :accessor footer)))
+(defparameter *global-fonts*
+  '("https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"))
 
-(defun make-html-skeleton (title content)
-  (make-instance 'html-skeleton :title title :body content))
+(defparameter *blog-entry-css* 
+  '("/default/css/blog-entry.css"))
+;;maybe I will add an extra parameter
 
-(defclass blog-entry ()
-  ((html
-    :accessor html
-    :initarg :html
-    :type html-skeleton)
-   (css
-    :accessor css
-    :initarg :css
-    :initform (list "/default/blog.css")
-    :type list)
-   (category
-    :accessor category
-    :initarg :category
-    :type string)
-   (creation-date
-    :initform (minute-day-month-year-now nil)
-    :accessor creation-date)
-   (title
-    :accessor title
-    :initarg :title
-    :type string)))
+(defparameter *blog-entries-css*
+  '("/default/css/blog-entries.css"))
 
-(defclass blog-entries ()
-  ((entries
-    :accessor entries
-    :initform nil
-    :type list)
-   (title
-    :accessor title
-    :initform "Main page"
-    :type string)
-   (headers
-    :accessor headers
-    :initarg :headers
-    :initform (list "/libraries/google-roboto/roboto.css"
-                    "/libraries/normalize/normalize.css"
-                    "/libraries/milligram-master/dist/milligram.min.css"
-                    "/default/blog.css")
-    :type list)))
-
-(defun make-blog-entry (title category content)
-  (let* ((html-skel (make-html-skeleton title content))
-         (blog-entry (make-instance 'blog-entry :title title :category category)))
-    (setf (headers html-skel) (append (headers html-skel) (css blog-entry))
-          (html blog-entry) html-skel)
-    blog-entry))
+(defparameter *blog-entry-footer* '())
+(defparameter *blog-entries-footer* '())
 
 (defmethod to-html ((entry blog-entry))
-  (let ((html (html entry)))
+  (with-accessors ((title title)
+                   (content content))
+      entry
     (spinneret:with-html-string
       (:doctype)
       (:html
        (:head
-        (:title (title html))
-        (dolist (header (headers html))
+        (:title title)
+        (dolist (header (append *global-fonts* *global-css* *blog-entry-css*))
           (:link :rel "stylesheet" :href header)))
        (:body
         (:div :class "content"
-              (:h1 (title html))
+              (:h1 title)
               (:h2 (category entry))
-              (:h3 (creation-date entry))
-              (funcall (body html))))))))
+              (:h3 (creation-date entry)
+                   (funcall content))))))))
+;;need a way to handle footers
 
 (defmethod to-html-body-only ((entry blog-entry))
-  (let* ((html (html entry))
-         (body (body html)));a list
+  (with-accessors ((content content)
+                   (title title)
+                   (category category)
+                   (creation-date creation-date))
+      entry
     (spinneret:with-html
       (:body
        (:div :class "content"
-             (:h1 (title html))
-             (:h2 (category entry))
-             (:h3 (creation-date entry))
-             (funcall body))))))
+             (:h1 title)
+             (:h2 category)
+             (:h3 creation-date)
+             (funcall content))))))
 
 (defun normalize-category-and-title (cat title)
   (concatenate 'string "/blog/"
@@ -112,27 +57,21 @@
                "/"
                (str:replace-all " " "-" title)))
 
-(defmethod to-route ((entry blog-entry))
-  (with-accessors ((title title)
-                   (category category))
-      entry
-    (add-route (make-route :GET (normalize-category-and-title category title)
-                           (lambda ()(to-html entry)))
-               *server*)))
-
-(defmethod to-html ((blogs blog-entries))
+(defmethod to-html ((blog blog))
   (with-accessors ((entries entries))
-      blogs
+      blog
     (spinneret:with-html-string
       (:doctype)
       (:html
        (:head
-        (:title (title blogs))
-        (dolist (header (headers blogs))
+        (:title (title blog))
+        (dolist (header (append *global-css* *global-fonts* *blog-entries-css*))
           (:link :rel "stylesheet" :href header)))
        (:body 
         (dolist (blog entries)
-          (:div :class "entry" (to-html-body-only blog))))))))
+          (:div :class "entry"
+                :id (id blog)
+                (to-html-body-only blog))))))))
   
   
 ;;;; now we have the means to convert some text into a HTML entry

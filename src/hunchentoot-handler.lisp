@@ -1,12 +1,12 @@
 (in-package :cl-bloggy)
 
-(defclass bloggy-acceptor (hunchentoot:acceptor)
+(defclass bloggy-acceptor (hunchentoot:easy-acceptor)
   ((routes
     :initform ()
     :accessor routes)
-   (blog-entries
-    :initform (make-instance 'blog-entries)
-    :accessor blog-entries)))
+   (blog
+    :initform (make-blog "blog-home")
+    :accessor blog)))
 
 (deftype route () `(satisfies routep))
 
@@ -22,7 +22,7 @@
 (defun make-route (method url handler)
   (check-type method keyword)
   (check-type url string)
-  (check-type handler (or function symbol))q
+  (check-type handler (or function symbol))
   (list method url handler))
 
 (defmethod add-route (route (acceptor bloggy-acceptor))
@@ -69,7 +69,3 @@ hunchentoot"
         (when (and (equal method2 method)
                    (string-equal url uri))
           (return (funcall handler)))))))
-
-
-(defun doof ()
-  "doofff")
