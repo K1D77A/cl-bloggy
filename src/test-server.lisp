@@ -1,7 +1,8 @@
 (in-package :cl-bloggy)
 
 (defparameter *server* (make-instance 'bloggy-acceptor
-                                      :blog (make-instance 'my-blog :title "Main")
+                                      :blog (make-instance 'blog
+                                                           :title "Main")
                                       :document-root "./"
                                       :port 4203 :name 'main))
 
@@ -15,12 +16,8 @@
     ()
   "boof")
 
-(add-route
- (make-route :get "/blog"
-             (lambda ()
-               (let ((blog (blog *server*)))
-                 (to-html blog))))
- *server*)
+(add-blog)
+(add-index)
 
 (easy-blog-entry (blog-entry "general" "entry1" *server*)
   (:div :class "elp"
@@ -49,7 +46,11 @@
 (easy-blog-entry (new-blog-entry "general" "entry4" *server*)
   (:div :class "elp"
         (:h1 "A second story to tell")
-        (:p "A second time in a land far away")))
+        (dolist (item (lorem-ipsum:paragraphs 5))
+          (:p item))
+        (:style :type "text/css"
+                (lass:compile-and-write
+                 '(h1 :font-size 3vw)))))
 
 
 

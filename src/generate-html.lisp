@@ -27,11 +27,11 @@
 
 (defmethod specific-footer ((entry blog-entry))
   (spinneret:with-html
-    (:p :class "in-footer" "made with cl-bloggy")))
+    (:p :id "in-footer" "made with cl-bloggy")))
 
 (defmethod specific-footer ((blog blog))
   (spinneret:with-html
-    (:p :class "in-footer" "make-with cl-bloggy")))
+    (:p :id "in-footer" "made with cl-bloggy")))
 
 (defmethod to-html ((entry blog-entry))
   (spinneret:with-html-string
@@ -39,10 +39,11 @@
     (:html
      (:head
       (html-headers entry))
-     (:body 
-      (html-body entry))
-     (:footer
-      (html-footer entry)))))
+     (:body
+      (:a :id "home-link" :href "/blog" "Home")
+      (html-body entry)
+      (:footer
+       (html-footer entry))))))
 
 (defmethod to-html ((blog blog))
   (spinneret:with-html-string
@@ -51,15 +52,16 @@
      (:head
       (html-headers blog))
      (:body 
-      (html-body blog))
-     (:footer
-      (html-footer blog)))))
+      (html-body blog)
+      (:footer
+       (html-footer blog))))))
 
 (defmethod html-headers ((entry blog-entry))
   (spinneret:with-html
-    (:title (title entry))
+    (:title :id "header-title" (title entry))
     (dolist (header (list 'global-css 'global-fonts 'specific-css))
-      (funcall header entry))))
+      (funcall header entry))
+    (to-css entry)))
 
 (defmethod html-headers ((blog blog))
   (spinneret:with-html
@@ -69,28 +71,40 @@
 
 (defmethod html-body ((entry blog-entry))
   (spinneret:with-html
-    (:div :class "content"
-          (:h1 (title entry))
-          (:h2 (category entry))
-          (:h3 (creation-date entry)
-               (funcall (content entry))))))
+    (:div :id "content"          
+          (:a :id "body-title"
+              :href (normalize-category-and-title entry)
+              (title entry))
+          (:h2 :id "body-h2" (category entry))
+          (:h3 :id "body-h3" (creation-date entry))
+          (:div :id "user-content"
+                (funcall (content entry))))))
+
+(defmethod html-body ((index blog-index))
+  (spinneret:with-html
+    (:div :id "entries-list"
+          (dolist (entry (entries (blog index)))
+            (:div :class "index-entry"
+                  (:p 
+                   (format nil "Title: ~A Date: ~A"
+                           (title entry) (creation-date entry))))))))
 
 (defmethod html-body ((blog blog))
   (spinneret:with-html
-    (:div :class "all-entries"
-          (dolist (blog (entries blog))
+    (:div :id "all-entries"
+          (dolist (blog (sort (entries blog) #'< :key #'creation-date-universal))
             (:div :class "entry"
                   :id (id blog)
                   (html-body blog))))))
 
 (defmethod html-footer ((entry blog-entry))
   (spinneret:with-html
-    (:div :class "footer"
+    (:div :id "footer"
           (dolist (footer (list 'global-footer 'specific-footer))
             (funcall footer entry)))))
 
 (defmethod html-footer ((blog blog))
   (spinneret:with-html
-    (:div :class "footer"
+    (:div :id "footer"
           (dolist (footer (list 'global-footer 'specific-footer))
             (funcall footer blog)))))

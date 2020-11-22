@@ -1,5 +1,8 @@
 (in-package #:cl-bloggy)
 
+(defparameter *blog-root-directory* "/blog/")
+(defparameter *blog-index-directory* (str:concat *blog-root-directory* "index"))
+
 (defun minute-day-month-year-now (stream)
   (local-time:with-decoded-timestamp (:minute minute :hour hour :day day
                                       :month month :year year)
@@ -14,7 +17,10 @@
     :type string)
    (creation-date
     :initform (minute-day-month-year-now nil)
-    :accessor creation-date)
+    :reader creation-date)
+   (creation-date-universal
+    :initform (get-universal-time)
+    :accessor creation-date-universal)
    (title
     :accessor title
     :initarg :title
@@ -38,21 +44,19 @@
     :accessor title
     :initarg :title
     :initform "Main page"
-    :type string)
-   (headers
-    :accessor headers
-    :initarg :headers
-    :type list)
-   (footers
-    :accessor footers
-    :initarg :footers
-    :type list)))
+    :type string)))
+
+(defclass blog-index (blog)
+  ((blog
+    :accessor blog
+    :initarg :blog
+    :type blog)))
 
 (defun make-blog (main-title)
   (make-instance 'blog :title main-title))
 
 (defun clean-string (string)
-  "downcases, replaces spaces with hypens and removes white space"
+  "downcases, replaces spaces with hyphens and removes white space"
   (string-downcase (str:replace-all " " "-" (str:trim string))))
 
 (defun make-id (category title)

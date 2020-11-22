@@ -2,11 +2,13 @@
 
 (in-package #:cl-bloggy)
 
+
+
 (defmethod normalize-category-and-title ((entry blog-entry))
   (with-accessors ((cat category)
                    (title title))
       entry
-    (concatenate 'string "/blog/"
+    (concatenate 'string *blog-root-directory*
                  (str:replace-all " " "-" cat)
                  "/"
                  (str:replace-all " " "-" title))))
@@ -25,4 +27,20 @@
                             (to-html ,new-entry))
                           (to-html ,new-entry))))
         ,acceptor))))
+
+(defun add-blog (&optional (path *blog-root-directory*))
+  (add-route
+   (make-route :get path
+               (lambda ()
+                 (let ((blog (blog *server*)))
+                   (to-html blog))))
+   *server*))
+
+(defun add-index (&optional (path *blog-index-directory*))
+  (add-route
+   (make-route :get path
+               (lambda ()
+                 (let ((index (make-instance 'blog-index :blog (blog *server*))))
+                   (to-html index))))
+   *server*))
 

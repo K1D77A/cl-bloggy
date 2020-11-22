@@ -11,11 +11,13 @@
                #:alexandria
                #:lass
                #:str
-               #:local-time)
+               #:local-time
+               #:lorem-ipsum)
   :pathname "src"
   :components ((:file "package")
                (:file "classes&conditions")
                (:file "hunchentoot-handler")
+               (:file "generate-css")
                (:file "generate-html")
                (:file "cl-bloggy")
                (:file "test-server")))
