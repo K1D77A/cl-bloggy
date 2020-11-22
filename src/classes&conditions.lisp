@@ -65,9 +65,9 @@
                    (entries blog)))
   (push entry (entries blog)))
 
-(defmethod new-blog-entry ((blog-entries blog) title category content)
+(defmethod new-blog-entry ((blog-entries blog) blog-class title category content)
   (check-type content function)
-  (let ((entry (make-instance 'blog-entry
+  (let ((entry (make-instance blog-class 
                               :category category
                               :title title
                               :content content

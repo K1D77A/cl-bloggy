@@ -5,7 +5,7 @@
     :initform ()
     :accessor routes)
    (blog
-    :initform (make-blog "blog-home")
+    :initarg :blog
     :accessor blog)))
 
 (deftype route () `(satisfies routep))

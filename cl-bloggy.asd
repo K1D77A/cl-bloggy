@@ -16,5 +16,6 @@
   :components ((:file "package")
                (:file "classes&conditions")
                (:file "hunchentoot-handler")
+               (:file "generate-html")
                (:file "cl-bloggy")
                (:file "test-server")))
