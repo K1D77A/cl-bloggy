@@ -30,5 +30,5 @@
 (defmethod to-css ((entry blog-entry))
   (spinneret:with-html
     (:style :type "text/css"
-            (apply #'lass:compile-and-write *blog-entry-css-rules*))))
+            (apply #'lass:compile-and-write (css-rules entry)))))
 

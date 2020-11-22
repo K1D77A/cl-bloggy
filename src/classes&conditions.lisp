@@ -21,6 +21,9 @@
    (creation-date-universal
     :initform (get-universal-time)
     :accessor creation-date-universal)
+   (css-rules
+    :initform *blog-entry-css-rules*
+    :accessor css-rules)
    (title
     :accessor title
     :initarg :title

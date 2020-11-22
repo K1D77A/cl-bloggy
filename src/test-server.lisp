@@ -30,7 +30,9 @@
         (:p "A second time in a land far away")))
 
 (defclass new-blog-entry (blog-entry)
-  ())
+  ((css-rules
+    :initform '(()))));;overriding the default css rules found in
+;;*blog-entry-css-rules*
 
 (defclass my-blog (blog)
   ())
