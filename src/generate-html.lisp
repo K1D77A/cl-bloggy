@@ -22,12 +22,10 @@
 version of this method for your own subclass to append stylesheets"))
 
 (defmethod specific-css ((entry blog-entry))
-  (spinneret:with-html
-    (:link :rel "stylesheet" :href "/default/css/blog-entry.css")))
+  nil)
 
 (defmethod specific-css ((blog blog))
-  (spinneret:with-html
-    (:link :rel "stylesheet" :href "/default/css/blog-entries.css")))
+  nil)
 
 (defmethod specific-css (item)
   nil)
@@ -113,7 +111,7 @@ for your own subclasses the same goes for the three methods it calls."))
 (defmethod html-body ((blog blog))
   (spinneret:with-html
     (:div :id "all-entries"
-          (dolist (blog (sort (entries blog) #'< :key #'creation-date-universal))
+          (dolist (blog (sort (entries blog) #'> :key #'creation-date-universal))
             (:div :class "entry"
                   :id (id blog)
                   (html-body blog))))))

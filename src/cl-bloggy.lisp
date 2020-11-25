@@ -47,12 +47,12 @@ using spinneret, use wisely."
                    (to-html blog))))
    *server*))
 
-(defun add-index (&optional (path *blog-index-directory*))
+(defun add-index (index-class &optional (path *blog-index-directory*))
   "Initializes the main blog index at PATH"
   (add-route
    (make-route :get path
                (lambda ()
-                 (let ((index (make-instance 'blog-index :blog (blog *server*))))
+                 (let ((index (make-instance index-class :blog (blog *server*))))
                    (to-html index))))
    *server*))
 
