@@ -11,7 +11,6 @@
 (defun stop ()
   (hunchentoot:stop *server*))
 
-;; (defmacro new-entry ((title category) ))
 (hunchentoot:define-easy-handler (root :uri "/dd")
     ()
   "boof")
@@ -29,30 +28,30 @@
         (:h1 "A second story to tell")
         (:p "A second time in a land far away")))
 
-(defclass new-blog-entry (blog-entry)
-  ((css-rules
-    :initform '(()))));;overriding the default css rules found in
-;;*blog-entry-css-rules*
+;; (defclass new-blog-entry (blog-entry)
+;;   ((css-rules
+;;     :initform '(()))));;overriding the default css rules found in
+;; ;;*blog-entry-css-rules*
 
-(defclass my-blog (blog)
-  ())
+;; (defclass my-blog (blog)
+;;   ())
 
-(defmethod html-footer ((blog my-blog))
-  (spinneret:with-html
-    (:p "i'm a different footer for the main page!!")))
+;; (defmethod html-footer ((blog my-blog))
+;;   (spinneret:with-html
+;;     (:p "i'm a different footer for the main page!!")))
 
-(defmethod html-footer ((entry new-blog-entry))
-  (spinneret:with-html
-    (:p "i'm a different footer!!")))
+;; (defmethod html-footer ((entry new-blog-entry))
+;;   (spinneret:with-html
+;;     (:p "i'm a different footer!!")))
 
-(easy-blog-entry (new-blog-entry "general" "entry4" *server*)
-  (:div :class "elp"
-        (:h1 "A second story to tell")
-        (dolist (item (lorem-ipsum:paragraphs 5))
-          (:p item))
-        (:style :type "text/css"
-                (lass:compile-and-write
-                 '(h1 :font-size 3vw)))))
+;; (easy-blog-entry (new-blog-entry "general" "entry4" *server*)
+;;   (:div :class "elp"
+;;         (:h1 "A second story to tell")
+;;         (dolist (item (lorem-ipsum:paragraphs 5))
+;;           (:p item))
+;;         (:style :type "text/css"
+;;                 (lass:compile-and-write
+;;                  '(h1 :font-size 3vw)))))
 
 
 

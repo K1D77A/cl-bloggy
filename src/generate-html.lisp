@@ -1,5 +1,8 @@
 (in-package #:cl-bloggy)
 
+(defgeneric global-css (i)
+  (:documentation "Appends a few CSS links to the render pipeline"))
+
 (defmethod global-css (item)
   (spinneret:with-html
     (:link :rel "stylesheet" :href
@@ -7,9 +10,16 @@
     (:link :rel "stylesheet" :href
            "https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css")))
 
+(defgeneric global-fonts (i)
+  (:documentation "Appends a font to the render pipeline"))
+
 (defmethod global-fonts (item)
   (spinneret:with-html
     (:link :rel "stylesheet" :href "https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic")))
+
+(defgeneric specific-css (e)
+  (:documentation "Adds specific CSS to the render pipeline. Create your own
+version of this method for your own subclass to append stylesheets"))
 
 (defmethod specific-css ((entry blog-entry))
   (spinneret:with-html
@@ -25,6 +35,10 @@
 (defmethod global-footer (item)
   nil)
 
+(defgeneric specific-footer (e)
+  (:documentation "Adds specific footer to the render pipeline. Create your own
+version of this method for your own subclass to modify the footer"))
+
 (defmethod specific-footer ((entry blog-entry))
   (spinneret:with-html
     (:p :id "in-footer" "made with cl-bloggy")))
@@ -33,6 +47,12 @@
   (spinneret:with-html
     (:p :id "in-footer" "made with cl-bloggy")))
 
+(defgeneric to-html (e)
+  (:documentation "The entry function used to create HTML pages. This method calls
+'html-headers' html-body' and 'html-footer' in that order in order to render a 
+page. You can create your own version of this method to modify the functionality
+for your own subclasses the same goes for the three methods it calls."))
+
 (defmethod to-html ((entry blog-entry))
   (spinneret:with-html-string
     (:doctype)
@@ -40,7 +60,7 @@
      (:head
       (html-headers entry))
      (:body
-      (:a :id "home-link" :href "/blog" "Home")
+      (:a :id "home-link" :href "/blog/" "Home")
       (html-body entry)
       (:footer
        (html-footer entry))))))
@@ -90,13 +110,13 @@
                        (format nil "Title: ~A Date: ~A"
                                (title entry) (creation-date entry))))))))
 
-  (defmethod html-body ((blog blog))
-    (spinneret:with-html
-      (:div :id "all-entries"
-            (dolist (blog (sort (entries blog) #'< :key #'creation-date-universal))
-              (:div :class "entry"
-                    :id (id blog)
-                    (html-body blog))))))
+(defmethod html-body ((blog blog))
+  (spinneret:with-html
+    (:div :id "all-entries"
+          (dolist (blog (sort (entries blog) #'< :key #'creation-date-universal))
+            (:div :class "entry"
+                  :id (id blog)
+                  (html-body blog))))))
 
 (defmethod html-footer ((entry blog-entry))
   (spinneret:with-html
