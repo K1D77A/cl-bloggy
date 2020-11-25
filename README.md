@@ -29,12 +29,12 @@ Next add the main blog page and the main index page
 (add-index 'blog-index)
 
 ```
-This will produce two pages, one at *blog-root-directory* (default "/blog/") and
-*blog-index-directory* (default "/blog/index") which you can browse but you will not
+This will produce two pages, one at \*blog-root-directory\* (default "/blog/") and
+\*blog-index-directory\* (default "/blog/index") which you can browse but you will not
 see much (the argument 'blog-index is provided as it is the class being
 instantiated, this will come in handy later when learning how to customize the blog).
 
-![initial index & blog](https://imgur.com/IZ2agj3.png)
+![initial index & blog](https://imgur.com/cwUfqja.png)
 
 Next we must add a simple entry using `easy-blog-entry`
 This macro accepts 5 arguments, the first is the class of the blog-entry you want
@@ -65,8 +65,7 @@ very easy to modify the behaviour of this library, I will walk you through a few
 examples of how to do this.
 
 First lets take a look at how we would customize an aspect of how a blog-entry is
-rendered. To do this I will explain the process for rendering a HTML page.
-Rendering the page calls these methods in this specific order:
+rendered; this is done by calling these methods in this specific order: 
 
 - to-html
 - html-headers
@@ -112,7 +111,7 @@ at every step in the HTML rendering spinneret:with-html is called, so you must d
 the same for your variant.
 If we compile and browse to /blog/general/entryboof we will see:
 
-[custom footer](https://imgur.com/7YJp5EZ.png)
+![custom footer](https://imgur.com/7YJp5EZ.png)
 
 If you wish to customize the default blog page then simply change the (make-instance ) when creating your hunchentoot server to a subclass of 'blog where you have
 created your own version of the methods in the HTML rendering pipeline.
@@ -190,7 +189,7 @@ following method on our own subclass of blog called new-blog here:
 
 ```
 
-Now with the new blog you will have to modify the 'blog within your *server* instance
+Now with the new blog you will have to modify the 'blog within your \*server\* instance
 to a new instance using new-blog instead of the default blog.
 
 I hope this helps.

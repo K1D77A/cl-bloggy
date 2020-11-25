@@ -16,7 +16,7 @@
   "boof")
 
 (add-blog)
-(add-index 'my-index)
+(add-index 'blog-index)
 
 (easy-blog-entry (blog-entry "general" "entry1" *server*)
   (:div :class "elp"

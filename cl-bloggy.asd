@@ -19,5 +19,4 @@
                (:file "hunchentoot-handler")
                (:file "generate-css")
                (:file "generate-html")
-               (:file "cl-bloggy")
-               (:file "test-server")))
+               (:file "cl-bloggy")))
