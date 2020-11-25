@@ -3,6 +3,9 @@
 This library implements a simple but highly extensible plugin blogging system for
 Hunchentoot.
 
+It uses its own custom handler to add routes but but you can still use hunchentoots
+define-easy-handler.
+
 ## Getting started
 
 To get started you need to start up hunchentoot with a new acceptor called 'bloggy-
