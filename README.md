@@ -16,7 +16,8 @@ acceptor'
                                       :document-root "./"
                                       :port 4203 :name 'main))
                                       
-                                      ```
+```
+
 You can see a new initarg called :blog this must be an instance of 'blog or a
 subclass of blog.
 
