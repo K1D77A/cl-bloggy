@@ -23,6 +23,29 @@
     ("#body-h3")
     (footer)))
 
+(defparameter *blog-css-rules*
+  '((body
+     :text-align center
+     :margin-left 25%
+     :margin-right 25%)
+    (:media "(orientation: portrait)"
+     (body
+      :text-align center
+      :margin-right 3%
+      :margin-left 3%))))
+
+
+(defparameter *index-css-rules*
+  '((body
+     :text-align center
+     :margin-left 25%
+     :margin-right 25%)
+    (:media "(orientation: portrait)"
+     (body
+      :text-align center
+      :margin-right 3%
+      :margin-left 3%))))
+
 
 ;;blog-entry h3 :font-size large
 ;;my-blog-entry h3 :font-size small
@@ -32,3 +55,7 @@
     (:style :type "text/css"
             (apply #'lass:compile-and-write (css-rules entry)))))
 
+(defmethod to-css ((blog blog))
+  (spinneret:with-html
+    (:style :type "text/css"
+            (apply #'lass:compile-and-write (css-rules blog)))))

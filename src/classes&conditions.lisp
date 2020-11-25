@@ -43,6 +43,9 @@
     :accessor entries
     :initform nil
     :type list)
+   (css-rules
+    :accessor css-rules
+    :initform *blog-css-rules*)
    (title
     :accessor title
     :initarg :title
@@ -53,7 +56,10 @@
   ((blog
     :accessor blog
     :initarg :blog
-    :type blog)))
+    :type blog)
+   (css-rules
+    :accessor css-rules
+    :initform *index-css-rules*)))
 
 (defun make-blog (main-title)
   (make-instance 'blog :title main-title))

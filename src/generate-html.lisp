@@ -67,7 +67,8 @@
   (spinneret:with-html
     (:title (title blog))
     (dolist (header (list 'global-css 'global-fonts 'specific-css))
-      (funcall header blog))))
+      (funcall header blog))
+    (to-css blog)))
 
 (defmethod html-body ((entry blog-entry))
   (spinneret:with-html
@@ -85,17 +86,17 @@
     (:div :id "entries-list"
           (dolist (entry (entries (blog index)))
             (:div :class "index-entry"
-                  (:p 
-                   (format nil "Title: ~A Date: ~A"
-                           (title entry) (creation-date entry))))))))
+                  (:a  :href (normalize-category-and-title entry)
+                       (format nil "Title: ~A Date: ~A"
+                               (title entry) (creation-date entry))))))))
 
-(defmethod html-body ((blog blog))
-  (spinneret:with-html
-    (:div :id "all-entries"
-          (dolist (blog (sort (entries blog) #'< :key #'creation-date-universal))
-            (:div :class "entry"
-                  :id (id blog)
-                  (html-body blog))))))
+  (defmethod html-body ((blog blog))
+    (spinneret:with-html
+      (:div :id "all-entries"
+            (dolist (blog (sort (entries blog) #'< :key #'creation-date-universal))
+              (:div :class "entry"
+                    :id (id blog)
+                    (html-body blog))))))
 
 (defmethod html-footer ((entry blog-entry))
   (spinneret:with-html
