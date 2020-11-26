@@ -41,8 +41,8 @@ instantiated, this will come in handy later when learning how to customize the b
 
 Next we must add a simple entry using `easy-blog-entry`
 This macro accepts 5 arguments, the first is the class of the blog-entry you want
-to create, the next the category, the next the title of the entry and last the
-hunchentoot server; the last and most important variable is a form that
+to create, the next the category, the next the title of the entry the fourth is the
+hunchentoot server, and the last and most important variable is a form that
 would be valid when passed to spinnerets 'with-html'. Here is an example:
 
 ```lisp
