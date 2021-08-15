@@ -42,10 +42,18 @@
     :initarg :title
     :initform "Main page"
     :type string
-    :allocation :class)))
+    :allocation :class)
+   (url
+    :reader url
+    :initarg :url
+    :initform *blog-root-directory*)))
 
 (defclass index (blog)
-  ())
+  ((blog
+    :reader blog
+    :initarg :blog)
+   (url
+    :initform *blog-index-directory*)))
 
 
 

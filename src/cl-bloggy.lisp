@@ -39,24 +39,24 @@ using spinneret, use wisely."
                           (to-html ,new-entry))))
         ,acceptor))))
 
-(defun add-blog (acceptor blog-class &optional (path *blog-root-directory*))
+(defun add-blog (acceptor blog-class)
   "Initializes the main blog page at PATH"
   (unless (slot-boundp acceptor 'blog)
     (setf (blog acceptor)
           (make-instance blog-class)))
   (add-route
-   (make-route :get path
+   (make-route :get (url (make-instance blog-class))
                (lambda ()
                  (let ((blog (blog acceptor)))
                    (to-html blog))))
    acceptor))
 
-(defun add-index (acceptor index-class &optional (path *blog-index-directory*))
+(defun add-index (acceptor index-class)
   "Initializes the main blog index at PATH"
   (add-route
-   (make-route :get path
+   (make-route :get (url (make-instance index-class))
                (lambda ()
-                 (let ((index (make-instance index-class)))
+                 (let ((index (make-instance index-class :blog (blog acceptor))))
                    (to-html index))))
    acceptor))
 
