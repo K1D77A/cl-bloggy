@@ -5,7 +5,7 @@
 (defgeneric normalize-category-and-title (e)
   (:documentation "This method produces a URL used to refer to a blog entry"))
 
-(defmethod normalize-category-and-title ((entry blog-entry))
+(defmethod normalize-category-and-title ((entry entry))
   (with-accessors ((cat category)
                    (title title))
       entry
@@ -14,7 +14,8 @@
                  "/"
                  (str:replace-all " " "-" title))))
 
-(defmacro easy-blog-entry ((blog-class category title acceptor &optional (let-bindings-to-override-global-vars nil)) &body body)
+(defmacro easy-blog-entry ((blog-class number category title date acceptor
+                            &optional (let-bindings-to-override-global-vars nil)) &body body)
   "Takes BLOG-CLASS (a subclass of 'blog-entry' or an instance of blog-entry) 
 and creates a new page at the url '*blog-root-directory*/CATEGORY/TITLE'.
 You can add this to any arbitrary running instance of hunchentoot as long as it was
@@ -26,8 +27,8 @@ is an implicit (spinneret:with-html ,@body ) so you can enter any arbitrary HTML
 using spinneret, use wisely."
   (alexandria:with-gensyms (new-entry)
     `(let ((,new-entry
-             (new-blog-entry (blog ,acceptor) ',blog-class ,title ,category
-               (lambda () (spinneret:with-html ,@body)))))
+             (new-blog-entry (blog ,acceptor) ',blog-class ,number ,title ,category ,date
+                             (lambda (entry) (declare (ignorable entry)) (spinneret:with-html ,@body)))))
        (add-route
         (make-route :GET
                     (normalize-category-and-title ,new-entry)
@@ -38,21 +39,44 @@ using spinneret, use wisely."
                           (to-html ,new-entry))))
         ,acceptor))))
 
-(defun add-blog (&optional (path *blog-root-directory*))
+(defun add-blog (acceptor blog-class &optional (path *blog-root-directory*))
   "Initializes the main blog page at PATH"
+  (unless (slot-boundp acceptor 'blog)
+    (setf (blog acceptor)
+          (make-instance blog-class)))
   (add-route
    (make-route :get path
                (lambda ()
-                 (let ((blog (blog *server*)))
+                 (let ((blog (blog acceptor)))
                    (to-html blog))))
-   *server*))
+   acceptor))
 
-(defun add-index (index-class &optional (path *blog-index-directory*))
+(defun add-index (acceptor index-class &optional (path *blog-index-directory*))
   "Initializes the main blog index at PATH"
   (add-route
    (make-route :get path
                (lambda ()
-                 (let ((index (make-instance index-class :blog (blog *server*))))
+                 (let ((index (make-instance index-class)))
                    (to-html index))))
-   *server*))
+   acceptor))
+
+(defmethod delete-entry ((acceptor bloggy-acceptor) (entry entry))
+  (with-accessors ((blog blog)
+                   (routes routes))
+      acceptor
+    (let ((uri (normalize-category-and-title entry)))
+      (setf routes
+            (remove uri routes :key #'second :test #'string-equal)
+            (entries blog)
+            (remove entry (entries blog) :test #'eq)))))
+
+(defmethod delete-entry ((acceptor bloggy-acceptor) (entry null)))
+
+(defmethod delete-entry ((acceptor bloggy-acceptor) (entry number))
+  (let* ((blog (blog acceptor))
+         (entries (entries blog)))
+    (delete-entry acceptor (find entry entries :key #'order :test #'=))))
+
+
+
 

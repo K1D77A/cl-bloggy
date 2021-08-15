@@ -1,15 +1,24 @@
 (in-package #:cl-bloggy)
 
-(defparameter *blog-entry-css-rules*
-  '((body
+
+(defgeneric page-css (page)
+  (:method-combination append :most-specific-last))
+
+(defmethod page-css :around (page)
+  (spinneret:with-html
+    (:style :type "text/css"
+      (apply #'lass:compile-and-write (call-next-method)))))
+
+(defmethod page-css append ((page entry))
+  `((body
      :text-align center
      :margin-left 25%
      :margin-right 25%)
     (:media "(orientation: portrait)"
-     (body
-      :text-align center
-      :margin-left 3%
-      :margin-right 3%))
+            (body
+             :text-align center
+             :margin-left 3%
+             :margin-right 3%))
     ("#home-link"
      :font-weight bold)
     ("#content"
@@ -20,44 +29,50 @@
     ("#body-h2")
     ("#body-h3")
     ("#user-content")
-    ("#body-h3")
-    (footer))
-  "The default LASS used by each the class 'blog-entry'")
+    ("#body-h3")))
 
-(defparameter *blog-css-rules*
-  '((body
-     :text-align center
-     :margin-left 25%
-     :margin-right 25%)
-    (:media "(orientation: portrait)"
+(defmethod page-css append ((page blog))
+  `((html
+     :background-color "#212529"
+                                        ;     "#1C1C1C"
+     :padding 5vw
+     :padding-right 10vw
+     :margin-left 0
+     :margin-right 0
+     :max-height 100%
+     :height 100%)
+    (.purple
+     :color "#9B4DCA")
+    (.wrapper
+     :color "#868e96")
+    ("media (orientation: portrait)"
      (body
       :text-align center
       :margin-right 3%
-      :margin-left 3%)))
-  "The default LASS used to render the main blog page")
+      :margin-left 3%))))
 
-(defparameter *index-css-rules*
-  '((body
+(defmethod page-css append ((page index))
+  `((body
      :text-align center
      :margin-left 25%
      :margin-right 25%)
-    (:media "(orientation: portrait)"
+    (":media (orientation: portrait)"
      (body
       :text-align center
       :margin-right 3%
-      :margin-left 3%)))
-  "The default LASS used to render the main blog index.")
+      :margin-left 3%))))
 
-(defgeneric to-css (e)
-  (:documentation "to-css simply appends a the CSS as an inline style tag. See
-(css-rules e) for the list of CSS, the CSS is infact a list of LASS rules"))
+(defgeneric scoped-css (page)
+  (:documentation "Generates scoped css for an entry."))
 
-(defmethod to-css ((entry blog-entry))
+(defmethod scoped-css :around (page)
   (spinneret:with-html
-    (:style :type "text/css"
-            (apply #'lass:compile-and-write (css-rules entry)))))
+    (:style :type "text-css"
+      (apply #'lass:compile-and-write (call-next-method)))))
 
-(defmethod to-css ((blog blog))
-  (spinneret:with-html
-    (:style :type "text/css"
-            (apply #'lass:compile-and-write (css-rules blog)))))
+(defmethod scoped-css (page)
+  nil)
+
+(defmethod scoped-css ((page entry))
+  `((body
+     :background-color "green")))

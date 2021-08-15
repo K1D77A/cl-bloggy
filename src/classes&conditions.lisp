@@ -3,31 +3,24 @@
 (defparameter *blog-root-directory* "/blog/")
 (defparameter *blog-index-directory* (str:concat *blog-root-directory* "index"))
 
-(defun minute-day-month-year-now (stream)
-  (local-time:with-decoded-timestamp (:minute minute :hour hour :day day
-                                      :month month :year year)
-                                     (local-time:now)
-    (format stream "~A-~A-~A at ~A:~A"
-            day month year hour minute)))
-
-(defclass blog-entry ()
+(defclass entry (blog)
   ((category
     :accessor category
     :initarg :category
     :type string)
-   (creation-date
-    :initform (minute-day-month-year-now nil)
-    :reader creation-date)
-   (creation-date-universal
-    :initform (get-universal-time)
-    :accessor creation-date-universal)
-   (css-rules
-    :initform *blog-entry-css-rules*
-    :accessor css-rules)
+   (date
+    :reader date
+    :initarg :date 
+    :type string
+    :documentation "The date")
    (title
     :accessor title
     :initarg :title
     :type string)
+   (order
+    :accessor order
+    :initarg :order
+    :type fixnum)
    (id
     :reader id
     :initarg :id
@@ -42,24 +35,19 @@
   ((entries
     :accessor entries
     :initform nil
-    :type list)
-   (css-rules
-    :accessor css-rules
-    :initform *blog-css-rules*)
+    :type list
+    :allocation :class)
    (title
     :accessor title
     :initarg :title
     :initform "Main page"
-    :type string)))
+    :type string
+    :allocation :class)))
 
-(defclass blog-index (blog)
-  ((blog
-    :accessor blog
-    :initarg :blog
-    :type blog)
-   (css-rules
-    :accessor css-rules
-    :initform *index-css-rules*)))
+(defclass index (blog)
+  ())
+
+
 
 (defun make-blog (main-title)
   (make-instance 'blog :title main-title))
@@ -71,20 +59,23 @@
 (defun make-id (category title)
   (clean-string (str:concat category title)))
 
-(defmethod add-new-blog ((blog blog) (entry blog-entry))
+(defmethod add-new-blog ((blog blog) (entry entry))
   (setf (entries blog)
         (delete-if (lambda (ent)
-                     (string-equal (id ent) (id entry)))
+                     (or  (= (order ent) (order entry))
+                          (string-equal (id ent) (id entry))))
                    (entries blog)))
   (push entry (entries blog)))
 
-(defmethod new-blog-entry ((blog-entries blog) blog-class title category content)
+(defun new-blog-entry (blog blog-class number title category date content)
   (check-type content function)
   (let ((entry (make-instance blog-class 
                               :category category
+                              :date date
+                              :order number
                               :title title
                               :content content
                               :id (make-id category title))))
-    (add-new-blog blog-entries entry)
+    (add-new-blog blog entry)
     entry))
 
