@@ -7,7 +7,7 @@
   ((category
     :accessor category
     :initarg :category
-    :type string)
+    :type category)
    (date
     :reader date
     :initarg :date 
@@ -43,10 +43,26 @@
     :initform "Main page"
     :type string
     :allocation :class)
+   (categories
+    :accessor categories
+    :initarg :categories
+    :initform ()
+    :type list)
    (url
     :reader url
     :initarg :url
     :initform *blog-root-directory*)))
+
+(defclass category ()
+  ((name
+    :accessor name
+    :initarg :name)
+   (subcategories
+    :accessor subcategories
+    :initarg :subcategories)
+   (parents
+    :accessor parents
+    :initarg :parents)))
 
 (defclass index (blog)
   ((blog
@@ -54,8 +70,6 @@
     :initarg :blog)
    (url
     :initform *blog-index-directory*)))
-
-
 
 (defun make-blog (main-title)
   (make-instance 'blog :title main-title))
@@ -65,7 +79,8 @@
   (string-downcase (str:replace-all " " "-" (str:trim string))))
 
 (defun make-id (category title)
-  (clean-string (str:concat category title)))
+  (clean-string (reduce #'str:concat (append (category-names category)
+                                             (list title)))))
 
 (defmethod add-new-blog ((blog blog) (entry entry))
   (setf (entries blog)

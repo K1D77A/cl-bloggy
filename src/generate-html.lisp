@@ -57,7 +57,8 @@ for your own subclasses the same goes for the three methods it calls."))
   (with-accessors ((id id)
                    (title title)
                    (date date)
-                   (content content))
+                   (content content)
+                   (category category))
       entry
     (spinneret:with-html
       (:div :class "content"
@@ -67,6 +68,10 @@ for your own subclasses the same goes for the three methods it calls."))
                       (normalize-category-and-title entry)
                       (:h2 :class "purple" title))
                   (:h4 :class "purple" date)
+                  (:div :class "tags"
+                        (:span "Tags: ")
+                        (dolist (name (category-names category))
+                          (:span name " ")))
                   (:div :id "user-content"
                         (funcall content entry)))))))
 
@@ -83,7 +88,7 @@ for your own subclasses the same goes for the three methods it calls."))
   (spinneret:with-html
     (:h1 :class "purple" (title blog))
     (:div :id "all-entries"
-          (dolist (blog (sort (entries blog) #'< :key #'order))
+          (dolist (blog (sort (entries blog) #'> :key #'order))
             (:div :class "entry"
                   :id (id blog)
                   (html-body blog))))))

@@ -9,12 +9,22 @@
   (with-accessors ((cat category)
                    (title title))
       entry
-    (concatenate 'string *blog-root-directory*
-                 (str:replace-all " " "-" cat)
-                 "/"
-                 (str:replace-all " " "-" title))))
+    (let ((names (category-names cat)))
+      (reduce #'str:concat
+              (append
+               (list (url entry))
+               (mapcar (lambda (name)
+                         (str:concat (clean-string name) "/"))
+                       names)
+               (list (clean-string title)))))))
 
-(defmacro easy-blog-entry ((blog-class number category title date acceptor
+(defmethod category-names ((category category))
+  (nreverse (append (list (name category))
+                    (loop :for cat :in (parents category)
+                          :collect (name cat)))))
+
+
+(defmacro easy-blog-entry ((blog-class number categories title date acceptor
                             &optional (let-bindings-to-override-global-vars nil)) &body body)
   "Takes BLOG-CLASS (a subclass of 'blog-entry' or an instance of blog-entry) 
 and creates a new page at the url '*blog-root-directory*/CATEGORY/TITLE'.
@@ -27,7 +37,8 @@ is an implicit (spinneret:with-html ,@body ) so you can enter any arbitrary HTML
 using spinneret, use wisely."
   (alexandria:with-gensyms (new-entry)
     `(let ((,new-entry
-             (new-blog-entry (blog ,acceptor) ',blog-class ,number ,title ,category ,date
+             (new-blog-entry (blog ,acceptor) ',blog-class ,number ,title
+                             (first (find-categories ',categories (blog ,acceptor))) ,date
                              (lambda (entry) (declare (ignorable entry)) (spinneret:with-html ,@body)))))
        (add-route
         (make-route :GET
@@ -38,6 +49,31 @@ using spinneret, use wisely."
                             (to-html ,new-entry))
                           (to-html ,new-entry))))
         ,acceptor))))
+
+(defun find-category (name blog)
+  "Attempts to find the category denoted by the string NAME, if it can't makes a new one."
+  (with-accessors ((categories categories))
+      blog
+    (let ((category (find name categories :key #'name :test #'string-equal)))
+      (if category
+          category
+          (let ((cat (make-instance 'category :name name)))
+            (push cat categories)
+            cat)))))
+        
+(defun find-categories (names blog &optional (cats nil))
+  "name is a list"
+  (with-accessors ((categories categories))
+      blog
+    (loop :for (name . children) :on names
+          :with cats := ()
+          :do (let ((category (find-category name blog)))
+                (setf (subcategories category)
+                      (find-categories children blog cats)
+                      (parents category)
+                      cats)
+                (push category cats))
+          :finally (return cats))))
 
 (defun add-blog (acceptor blog-class)
   "Initializes the main blog page at PATH"
