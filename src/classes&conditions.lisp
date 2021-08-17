@@ -1,9 +1,36 @@
 (in-package #:cl-bloggy)
 
-(defparameter *blog-root-directory* "/blog/")
-(defparameter *blog-index-directory* (str:concat *blog-root-directory* "index"))
+(defparameter *blog-root-directory* "/blog/main/")
+(defparameter *blog-index-directory* "/blog/index")
 
-(defclass entry (blog)
+(defclass special-request ()
+  ((acceptor
+    :reader acceptor
+    :initarg :acceptor)
+   (request
+    :reader request
+    :initarg :request)
+   (uri
+    :reader uri
+    :initarg :uri)
+   (split-uri
+    :reader split-uri
+    :initarg :split-uri)
+   (r-method
+    :reader r-method
+    :initarg :r-method)))
+
+(defclass rss-request (special-request)
+  ())
+
+(defclass category-request (special-request)
+  ())
+
+(defclass atom-request (special-request)
+  ())
+
+
+(defclass entry ()
   ((category
     :accessor category
     :initarg :category
@@ -11,12 +38,13 @@
    (date
     :reader date
     :initarg :date 
-    :type string
+    :type local-time:timestamp
     :documentation "The date")
    (title
     :accessor title
     :initarg :title
-    :type string)
+    :initform nil
+    :type (or string null function))
    (order
     :accessor order
     :initarg :order
@@ -29,25 +57,51 @@
    (content
     :accessor content
     :initarg :content
-    :type function)))
+    :type function)
+   (description
+    :accessor description
+    :initarg :description
+    :initform nil
+    :type (or function string null))
+   (blog
+    :accessor blog
+    :initarg :blog
+    :type blog)))
 
 (defclass blog ()
   ((entries
     :accessor entries
+    :initarg :entries
     :initform nil
-    :type list
-    :allocation :class)
+    :type list)
    (title
     :accessor title
     :initarg :title
     :initform "Main page"
-    :type string
-    :allocation :class)
+    :type string)
    (categories
     :accessor categories
     :initarg :categories
     :initform ()
     :type list)
+   (author
+    :accessor author
+    :initarg :author
+    :type string)
+   (domain
+    :accessor domain
+    :initarg domain
+    :type string)
+   (description
+    :accessor description
+    :initarg :description
+    :initform ""
+    :type string)
+   (language
+    :accessor language
+    :initarg :language
+    :initform "en-gb"
+    :type string)
    (url
     :reader url
     :initarg :url
@@ -82,6 +136,16 @@
   (clean-string (reduce #'str:concat (append (category-names category)
                                              (list title)))))
 
+(defun new-date-timestamp (&key (nsec 0)
+                             (sec 0)
+                             (minute 0)
+                             (hour 0)
+                             (day 1)
+                             (month 1)
+                             (year 2021))
+  (local-time:encode-timestamp nsec sec minute hour day month year))
+
+
 (defmethod add-new-blog ((blog blog) (entry entry))
   (setf (entries blog)
         (delete-if (lambda (ent)
@@ -98,6 +162,7 @@
                               :order number
                               :title title
                               :content content
+                              :blog blog 
                               :id (make-id category title))))
     (add-new-blog blog entry)
     entry))

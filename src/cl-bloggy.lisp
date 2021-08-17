@@ -2,27 +2,43 @@
 
 (in-package #:cl-bloggy)
 
-(defgeneric normalize-category-and-title (e)
-  (:documentation "This method produces a URL used to refer to a blog entry"))
+(defgeneric process-uri (e key)
+  (:documentation "Generates the correct url for E. Key is the method to use."))
 
-(defmethod normalize-category-and-title ((entry entry))
+(defmethod process-uri ((entry entry) (key (eql :encode)))
   (with-accessors ((cat category)
                    (title title))
       entry
     (let ((names (category-names cat)))
       (reduce #'str:concat
               (append
-               (list (url entry))
+               (list (url (blog entry)))
                (mapcar (lambda (name)
-                         (str:concat (clean-string name) "/"))
+                         (str:concat (do-urlencode:urlencode name) "/"))
                        names)
-               (list (clean-string title)))))))
+               (list (do-urlencode:urlencode title)))))))
+
+(defmethod process-uri ((uri string) (key (eql :decode)))
+  (let ((split (str:split "/" uri)))
+    (format nil "~{~A~^/~}"
+            (mapcar (lambda (e)
+                      (do-urlencode:urldecode e))
+                    split))))
 
 (defmethod category-names ((category category))
   (nreverse (append (list (name category))
                     (loop :for cat :in (parents category)
                           :collect (name cat)))))
 
+(defun entries-in-category (category blog)
+  (loop :for entry :in (entries blog)
+        :when (or (eq (category entry) category)
+                  (with-accessors ((parents parents))
+                      category
+                    (when parents
+                      (loop :for cat :in parents
+                              :thereis (eq (category entry) cat)))))
+          :collect entry))
 
 (defmacro easy-blog-entry ((blog-class number categories title date acceptor
                             &optional (let-bindings-to-override-global-vars nil)) &body body)
@@ -38,11 +54,12 @@ using spinneret, use wisely."
   (alexandria:with-gensyms (new-entry)
     `(let ((,new-entry
              (new-blog-entry (blog ,acceptor) ',blog-class ,number ,title
-                             (first (find-categories ',categories (blog ,acceptor))) ,date
+                             (first (find-categories ',categories (blog ,acceptor)))
+                             (apply #'new-date-timestamp ',date)
                              (lambda (entry) (declare (ignorable entry)) (spinneret:with-html ,@body)))))
        (add-route
         (make-route :GET
-                    (normalize-category-and-title ,new-entry)
+                    (process-uri ,new-entry :encode)
                     (lambda ()
                       (if ',let-bindings-to-override-global-vars
                           (let ,let-bindings-to-override-global-vars
@@ -50,16 +67,18 @@ using spinneret, use wisely."
                           (to-html ,new-entry))))
         ,acceptor))))
 
-(defun find-category (name blog)
+(defun find-category (name blog &optional (createp t))
   "Attempts to find the category denoted by the string NAME, if it can't makes a new one."
   (with-accessors ((categories categories))
       blog
     (let ((category (find name categories :key #'name :test #'string-equal)))
       (if category
           category
-          (let ((cat (make-instance 'category :name name)))
-            (push cat categories)
-            cat)))))
+          (if createp 
+              (let ((cat (make-instance 'category :name name)))
+                (push cat categories)
+                cat)
+              nil)))))
         
 (defun find-categories (names blog &optional (cats nil))
   "name is a list"

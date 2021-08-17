@@ -13,7 +13,7 @@ for your own subclasses the same goes for the three methods it calls."))
      (:head
       (html-headers entry))
      (:body
-      (:a :id "home-link" :href "/blog/" "Home")
+      (:a :id "home-link" :href (url (blog entry)) "Home")
       (html-body entry)
       (:footer
        (html-footer entry))))))
@@ -65,7 +65,7 @@ for your own subclasses the same goes for the three methods it calls."))
             (:div :id id
                   (scoped-css entry)
                   (:a :href
-                      (normalize-category-and-title entry)
+                      (process-uri entry :encode)
                       (:h2 :class "purple" title))
                   (:h4 :class "purple" date)
                   (:div :class "tags"
@@ -80,7 +80,7 @@ for your own subclasses the same goes for the three methods it calls."))
     (:div :id "entries-list"
           (dolist (entry (entries (blog index)))
             (:div :class "index-entry"
-                  (:a :href (normalize-category-and-title entry)
+                  (:a :href (process-uri entry :encode)
                       (format nil "Title: ~A Date: ~A"
                               (title entry) (date entry))))))))
 
@@ -100,3 +100,58 @@ for your own subclasses the same goes for the three methods it calls."))
 
 (defmethod html-footer (page)
   nil)
+
+(defgeneric generate-rss (stream object)
+  (:documentation "Converts object into RSS using xml-emitter."))
+
+(defmethod generate-rss :around (stream object)  
+  (call-next-method))
+
+(defmethod generate-rss (stream (category category))
+  (let ((names (category-names category)))
+    (format nil "~{~:(~A~)~^ ~}"
+            (mapcar (lambda (name)
+                      (if (find #\Space name)
+                          (format nil "'~A'" name)
+                          name))
+                    names))))
+
+(defmethod generate-rss (stream (blog blog))
+  (with-accessors ((domain domain)
+                   (url url)
+                   (title title)
+                   (description description)
+                   (entries entries)
+                   (language language))
+      blog
+    (xml-emitter:rss-channel-header
+     title (format nil "~A~A" domain url)
+     :description description :language language)
+    (mapc (lambda (entry)
+            (generate-rss stream entry))
+          entries)))
+
+(defmethod generate-rss (stream (entry entry))
+  (with-accessors ((blog blog)
+                   (title title)
+                   (date date)
+                   (content content)
+                   (category category)
+                   (description description))
+      entry
+    (xml-emitter:rss-item
+     title :link (format nil "~A~A" (domain blog)
+                         (process-uri entry :encode))
+     :category (generate-rss stream category)
+     :pubdate date
+     :author (author blog)
+     :description
+     (let* ((my-stream (make-string-output-stream))
+            (*standard-output* my-stream))
+       (typecase description
+         (string description)
+         (function (funcall description entry))
+         (null (funcall content entry)))
+       (get-output-stream-string my-stream)))))
+
+
