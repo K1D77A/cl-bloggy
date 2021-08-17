@@ -143,8 +143,30 @@
                              (day 1)
                              (month 1)
                              (year 2021))
-  (local-time:encode-timestamp nsec sec minute hour day month year))
+  (local-time:encode-timestamp nsec sec minute hour day
+                               (%convert-month-to-n month) year))
 
+(defmethod %convert-month-to-n ((month fixnum))
+  month)
+
+(defmethod %convert-month-to-n ((month string))
+  (let ((months
+          '("january"
+            "february"
+            "march"
+            "april"
+            "may"
+            "june"
+            "july"
+            "august"
+            "september"
+            "october"
+            "november"
+            "december")))
+    (loop :for mon :in months
+          :for x :from 1 :to (length months)
+          :when (str:containsp (string-downcase month) mon)
+            :return  x)))
 
 (defmethod add-new-blog ((blog blog) (entry entry))
   (setf (entries blog)

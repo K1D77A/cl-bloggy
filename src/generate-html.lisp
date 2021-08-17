@@ -67,7 +67,7 @@ for your own subclasses the same goes for the three methods it calls."))
                   (:a :href
                       (process-uri entry :encode)
                       (:h2 :class "purple" title))
-                  (:h4 :class "purple" date)
+                  (:h4 :class "purple" (format-timestamp nil date :site))
                   (:div :class "tags"
                         (:span "Tags: ")
                         (dolist (name (category-names category))
@@ -82,7 +82,7 @@ for your own subclasses the same goes for the three methods it calls."))
             (:div :class "index-entry"
                   (:a :href (process-uri entry :encode)
                       (format nil "Title: ~A Date: ~A"
-                              (title entry) (date entry))))))))
+                              (title entry) (format-timestamp nil (date entry) :site))))))))
 
 (defmethod html-body ((blog blog))
   (spinneret:with-html
@@ -143,7 +143,7 @@ for your own subclasses the same goes for the three methods it calls."))
      title :link (format nil "~A~A" (domain blog)
                          (process-uri entry :encode))
      :category (generate-rss stream category)
-     :pubdate date
+     :pubdate (format-timestamp stream date :rss)
      :author (author blog)
      :description
      (let* ((my-stream (make-string-output-stream))

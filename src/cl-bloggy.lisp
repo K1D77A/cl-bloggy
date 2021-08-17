@@ -133,5 +133,15 @@ using spinneret, use wisely."
     (delete-entry acceptor (find entry entries :key #'order :test #'=))))
 
 
+(defgeneric format-timestamp (stream timestamp way)
+  (:documentation "formats timestamp into stream by WAY."))
 
+(defmethod format-timestamp (stream timestamp (way (eql :site)))
+  (local-time:format-timestring stream timestamp
+                                :format '(:ordinal-day " of " :long-month " "
+                                          :year  " at " :hour12 ":" :min :ampm)))
+
+(defmethod format-timestamp (stream timestamp (way (eql :rss)))
+  (local-time:format-timestring stream timestamp 
+                                :format local-time:+rfc-1123-format+))
 
