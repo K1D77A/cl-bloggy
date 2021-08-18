@@ -17,7 +17,8 @@
                #:lorem-ipsum)
   :pathname "src"
   :components ((:file "package")
-               (:file "classes&conditions")
+               (:file "classes")
+               (:file "conditions")
                (:file "hunchentoot-handler")
                (:file "request-processing")
                (:file "generate-css")

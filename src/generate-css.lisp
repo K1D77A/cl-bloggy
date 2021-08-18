@@ -62,6 +62,9 @@
       :margin-right 3%
       :margin-left 3%))))
 
+(defmethod page-css append ((c display-condition))
+  (page-css (make-instance 'blog)))
+
 (defgeneric scoped-css (page)
   (:documentation "Generates scoped css for an entry."))
 

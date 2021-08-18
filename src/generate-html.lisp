@@ -6,28 +6,30 @@
 page. You can create your own version of this method to modify the functionality
 for your own subclasses the same goes for the three methods it calls."))
 
-(defmethod to-html ((entry entry))
+(defmethod to-html :around (e)
   (spinneret:with-html-string
     (:doctype)
     (:html
      (:head
-      (html-headers entry))
+      (html-headers e))
      (:body
-      (:a :id "home-link" :href (url (blog entry)) "Home")
-      (html-body entry)
+      (call-next-method)
+      (html-body e)
       (:footer
-       (html-footer entry))))))
+       (html-footer e))))))
+
+(defmethod to-html ((entry entry))
+  (spinneret:with-html 
+    (:a :id "home-link" :href (url (blog entry)) "Home")))
+
+(defmethod to-html ((c display-condition))
+  (spinneret:with-html
+    (:a :id "home-link" :href (url (blog (c c))) "Home")))
+
+
 
 (defmethod to-html ((blog blog))
-  (spinneret:with-html-string
-    (:doctype)
-    (:html
-     (:head
-      (html-headers blog))
-     (:body 
-      (html-body blog))
-     (:footer
-      (html-footer blog)))))
+  nil)
 
 (defmethod html-headers :around (page)
   (spinneret:with-html
@@ -92,6 +94,14 @@ for your own subclasses the same goes for the three methods it calls."))
             (:div :class "entry"
                   :id (id blog)
                   (html-body blog))))))
+
+(defmethod html-body ((c display-condition))
+  (with-accessors ((http-code http-code)
+                   (message message))
+      (c c)
+    (spinneret:with-html
+      (:h1 :class "purple" http-code)
+      (:h3 :class "purple" message))))
 
 (defmethod html-footer :around (page)
   (spinneret:with-html

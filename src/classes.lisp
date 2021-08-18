@@ -3,6 +3,8 @@
 (defparameter *blog-root-directory* "/blog/main/")
 (defparameter *blog-index-directory* "/blog/index")
 
+
+
 (defclass special-request ()
   ((acceptor
     :reader acceptor
@@ -108,6 +110,12 @@
     :initarg :language
     :initform "en-gb"
     :type string)
+   (condition-display-class
+    :accessor condition-display-class
+    :initarg :condition-display-class
+    :initform 'display-condition
+    :documentation
+    "The class that will be used for displaying error situations to the user.")
    (url
     :reader url
     :initarg :url
