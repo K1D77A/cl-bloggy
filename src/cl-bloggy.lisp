@@ -19,26 +19,64 @@
                (list (do-urlencode:urlencode title)))))))
 
 (defmethod process-uri ((uri string) (key (eql :decode)))
-  (let ((split (str:split "/" uri)))
-    (format nil "~{~A~^/~}"
-            (mapcar (lambda (e)
-                      (do-urlencode:urldecode e))
-                    split))))
+  (let ((split (str:split "/" uri :omit-nulls t)))
+    (values 
+     (format nil "~{~A~^/~}"
+             (let ((decoded 
+                     (mapcar (lambda (e)
+                               (do-urlencode:urldecode e))
+                             split)))
+               (setf split decoded)
+               decoded))
+     split)))
+
+(defun %recurse-categories-parents (category func)
+  "Recurses over the category and all of its parents executing func with the current 
+category and the accumulator as arguments, the result of the funcall is pushed to the 
+accumulator."
+  (labels ((rec (cat acc)
+             (with-accessors ((parent parent))
+                 cat
+               (if (null parent)
+                   (push (funcall func cat acc) acc)
+                   (progn
+                     (push (funcall func cat acc) acc)
+                     (rec parent acc))))))
+    (rec category nil)))
+
+(defun %recurse-categories-children (category func)
+  "Recurses over the category and all of its children executing func with the current 
+category and the accumulator as arguments, the result of the funcall is pushed to the 
+accumulator."
+  (let ((res ()))
+    (labels ((rec (cat)
+               (cond ((null cat)
+                      nil)
+                     ((listp cat)
+                      (rec (first cat))
+                      (rec (rest cat)))
+                     (t (push (funcall func cat) res)
+                        (rec (children cat))))))
+      (rec category)
+      res)))
 
 (defmethod category-names ((category category))
-  (nreverse (append (list (name category))
-                    (loop :for cat :in (parents category)
-                          :collect (name cat)))))
+  "Returns the names of all of the names of categories in category."
+  (%recurse-categories-parents category
+                               (lambda (cat acc)
+                                 (declare (ignore acc))
+                                 (name cat))))
+
+(defmethod all-children ((category category))
+  (%recurse-categories-children category (lambda (x) x)))
 
 (defun entries-in-category (category blog)
-  (loop :for entry :in (entries blog)
-        :when (or (eq (category entry) category)
-                  (some (lambda (sub)
-                          (some (lambda (ent)
-                                  (eq (category ent) category))
-                                (entries-in-category sub blog)))
-                        (subcategories category)))
-          :collect entry))
+  (let ((categories (all-children category)))
+    (loop :for entry :in (entries blog)
+          :when (some (lambda (cat)
+                        (eq (category entry) cat))
+                      categories)
+            :collect entry)))
 
 (defmacro easy-blog-entry ((blog-class number categories title date acceptor
                             &optional (let-bindings-to-override-global-vars nil)) &body body)
@@ -54,7 +92,7 @@ using spinneret, use wisely."
   (alexandria:with-gensyms (new-entry)
     `(let ((,new-entry
              (new-blog-entry (blog ,acceptor) ',blog-class ,number ,title
-                             (first (find-categories ',categories (blog ,acceptor)))
+                             (find-category ',categories (blog ,acceptor))
                              (apply #'new-date-timestamp ',date)
                              (lambda (entry) (declare (ignorable entry))
                                (spinneret:with-html ,@body)))))
@@ -85,14 +123,16 @@ the final category would have to be new. So categories are found by their parent
                          (check-for-kids found? (rest names))
                          (when createp
                            (make-children category names)))))))
-      (let ((found? (find (first list) categories :key #'name :test #'string-equal)))
+      (let* ((current (first list))
+             (remainder (rest list))
+             (found? (find current categories :key #'name :test #'string-equal)))
         (if found?
-            (check-for-kids found? (rest list))
+            (check-for-kids found? remainder)
             (when createp 
               (push 
-               (make-children (make-instance 'category :name (first list)
-                                                       :sym (intern (first list)))
-                              (rest list))
+               (make-children (make-instance 'category :name current
+                                                       :sym (intern current))
+                              remainder)
                categories)))))))
 
 (defun make-children (current names)
@@ -109,27 +149,6 @@ the final category would have to be new. So categories are found by their parent
                      (rec cat remainder)))))))
     (rec current names)
     current))
-             
-
-(defun process-category-list (list blog)
-  (with-accessors ((categories categories))
-      blog
-    (labels ((rec (parent children working-category)
-               (cond ((null children)
-                      working-category)
-                     (())
-          :do (let ((current (find-category parent blog)))
-                (if current
-                    
-
-
-
-
-
-
-
-
-
 
 (defun find-categories (names blog &optional (cats nil))
   "name is a list"

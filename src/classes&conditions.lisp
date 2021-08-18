@@ -17,7 +17,7 @@
     :reader split-uri
     :initarg :split-uri)
    (category
-    :reader category
+    :accessor category
     :initarg :category)
    (r-method
     :reader r-method
@@ -126,7 +126,8 @@
     :initform nil)
    (parent
     :accessor parent
-    :initarg :parent)))
+    :initarg :parent
+    :initform nil)))
 
 (defclass index (blog)
   ((blog
