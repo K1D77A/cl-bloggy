@@ -5,21 +5,28 @@
 
 (defmethod handle-unknown-uri (acceptor request uri method)
   (let* ((split (str:split "/" uri :omit-nulls t))
-         (last (do-urlencode:urldecode (first (last split)))))
-    (process-special-request 
-     (make-instance (determine-request-type acceptor last)
-                    :acceptor acceptor :request request :uri uri :r-method method
-                    :split-uri split))))
+         (cats (set-difference split (str:split "/" (url (blog acceptor))
+                                                :omit-nulls t)
+                               :test #'string-equal))
+         (last (do-urlencode:urldecode (first (last split))))
+         (special
+           (make-instance 'special-request 
+                          :acceptor acceptor :request request :uri uri :r-method method
+                          :split-uri split :category (find-category (first (last cats))
+                                                                    (blog acceptor)
+                                                                    nil))))
+    (process-special-request (change-class special (determine-request-type special last)))))
 
-(defgeneric determine-request-type (acceptor string)
+(defgeneric determine-request-type (special end)
   (:documentation "Given a string determines the special request type"))
 
-(defmethod determine-request-type (acceptor (string string))
-  (cond ((string-equal string "rss.xml")
+(defmethod determine-request-type ((special special-request) end)
+  (cond ((and (string-equal end "rss.xml")
+              (category special))
+         'rss-category-request)
+        ((string-equal end "rss.xml")
          'rss-request)
-        ((string-equal string "atom")
-         'atom-request)
-        ((find-category string (blog acceptor) nil)
+        ((category special)
          'category-request)
         (t 'special-request)))
 
@@ -46,6 +53,22 @@ expected."))
       request
     (let* ((blog (blog acceptor))
            (category (find-category (first (last split-uri)) blog nil))
+           (entries (entries-in-category category blog)))
+      (if entries
+          (with-accessors ((categories categories))
+              blog
+            (to-html (make-instance 'blog :categories categories
+                                          :title (name category)
+                                          :entries entries)))
+          "unknown"))))
+
+(defmethod process-special-request ((request rss-category-request))
+  (with-accessors ((split-uri split-uri)
+                   (acceptor acceptor)
+                   (category category))
+      request
+    (print category)
+    (let* ((blog (blog acceptor))
            (entries (entries-in-category category blog)))
       (if entries
           (with-accessors ((categories categories))

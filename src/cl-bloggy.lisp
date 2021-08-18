@@ -33,11 +33,11 @@
 (defun entries-in-category (category blog)
   (loop :for entry :in (entries blog)
         :when (or (eq (category entry) category)
-                  (with-accessors ((parents parents))
-                      category
-                    (when parents
-                      (loop :for cat :in parents
-                              :thereis (eq (category entry) cat)))))
+                  (some (lambda (sub)
+                          (some (lambda (ent)
+                                  (eq (category ent) category))
+                                (entries-in-category sub blog)))
+                        (subcategories category)))
           :collect entry))
 
 (defmacro easy-blog-entry ((blog-class number categories title date acceptor
@@ -56,7 +56,8 @@ using spinneret, use wisely."
              (new-blog-entry (blog ,acceptor) ',blog-class ,number ,title
                              (first (find-categories ',categories (blog ,acceptor)))
                              (apply #'new-date-timestamp ',date)
-                             (lambda (entry) (declare (ignorable entry)) (spinneret:with-html ,@body)))))
+                             (lambda (entry) (declare (ignorable entry))
+                               (spinneret:with-html ,@body)))))
        (add-route
         (make-route :GET
                     (process-uri ,new-entry :encode)
@@ -67,19 +68,69 @@ using spinneret, use wisely."
                           (to-html ,new-entry))))
         ,acceptor))))
 
-(defun find-category (name blog &optional (createp t))
-  "Attempts to find the category denoted by the string NAME, if it can't makes a new one."
+(defun find-category (list blog &optional (createp t))
+  "Attempts to find the category that is in list.
+List contains the names of the categories, say ('general' 'programming' 'common lisp' 
+'generics') the correct category would be the very final one, that is a child of 
+each of those categories successively, if you swapped 'common lisp' for 'clojure' then 
+the final category would have to be new. So categories are found by their parents."
   (with-accessors ((categories categories))
       blog
-    (let ((category (find name categories :key #'name :test #'string-equal)))
-      (if category
-          category
-          (if createp 
-              (let ((cat (make-instance 'category :name name)))
-                (push cat categories)
-                cat)
-              nil)))))
-        
+    (labels ((check-for-kids (category names)
+               (if (null names)
+                   category
+                   (let ((found? (find (first names) (children category)
+                                       :key #'name :test #'string-equal)))
+                     (if found? 
+                         (check-for-kids found? (rest names))
+                         (when createp
+                           (make-children category names)))))))
+      (let ((found? (find (first list) categories :key #'name :test #'string-equal)))
+        (if found?
+            (check-for-kids found? (rest list))
+            (when createp 
+              (push 
+               (make-children (make-instance 'category :name (first list)
+                                                       :sym (intern (first list)))
+                              (rest list))
+               categories)))))))
+
+(defun make-children (current names)
+  (labels ((rec (parent childs)
+             (with-accessors ((children children))
+                 parent
+               (let ((child (first childs))
+                     (remainder (rest childs)))
+                 (unless (null child)
+                   (let ((cat (make-instance 'category :name child
+                                                       :sym (intern child)
+                                                       :parent parent)))
+                     (push cat children)
+                     (rec cat remainder)))))))
+    (rec current names)
+    current))
+             
+
+(defun process-category-list (list blog)
+  (with-accessors ((categories categories))
+      blog
+    (labels ((rec (parent children working-category)
+               (cond ((null children)
+                      working-category)
+                     (())
+          :do (let ((current (find-category parent blog)))
+                (if current
+                    
+
+
+
+
+
+
+
+
+
+
 (defun find-categories (names blog &optional (cats nil))
   "name is a list"
   (with-accessors ((categories categories))

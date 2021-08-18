@@ -16,6 +16,9 @@
    (split-uri
     :reader split-uri
     :initarg :split-uri)
+   (category
+    :reader category
+    :initarg :category)
    (r-method
     :reader r-method
     :initarg :r-method)))
@@ -24,6 +27,9 @@
   ())
 
 (defclass category-request (special-request)
+  ())
+
+(defclass rss-category-request (category-request rss-request)
   ())
 
 (defclass atom-request (special-request)
@@ -111,12 +117,16 @@
   ((name
     :accessor name
     :initarg :name)
-   (subcategories
-    :accessor subcategories
-    :initarg :subcategories)
-   (parents
-    :accessor parents
-    :initarg :parents)))
+   (sym
+    :accessor sym
+    :initarg :sym)
+   (children
+    :accessor children
+    :initarg :children
+    :initform nil)
+   (parent
+    :accessor parent
+    :initarg :parent)))
 
 (defclass index (blog)
   ((blog
