@@ -116,6 +116,10 @@
     :initform 'display-condition
     :documentation
     "The class that will be used for displaying error situations to the user.")
+   (index
+    :accessor index
+    :initarg :index
+    :type index)
    (url
     :reader url
     :initarg :url

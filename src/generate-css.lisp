@@ -2,12 +2,25 @@
 
 
 (defgeneric page-css (page)
-  (:method-combination append :most-specific-last))
+  (:method-combination append :most-specific-last)
+  (:documentation "Generates CSS for page"))
 
 (defmethod page-css :around (page)
   (spinneret:with-html
     (:style :type "text/css"
-      (apply #'lass:compile-and-write (call-next-method)))))
+            (apply #'lass:compile-and-write (call-next-method)))))
+
+(defmethod page-css append (page)
+  `((html
+     :background-color "#212529"
+     :padding 5vw
+     :padding-right 10vw
+     :margin-left 0
+     :margin-right 0
+     :max-height 100%
+     :height 100%)
+    ("html p"
+     :font-size 15pt)))
 
 (defmethod page-css append ((page entry))
   `((body
@@ -32,16 +45,7 @@
     ("#body-h3")))
 
 (defmethod page-css append ((page blog))
-  `((html
-     :background-color "#212529"
-                                        ;     "#1C1C1C"
-     :padding 5vw
-     :padding-right 10vw
-     :margin-left 0
-     :margin-right 0
-     :max-height 100%
-     :height 100%)
-    (.purple
+  `((.purple
      :color "#9B4DCA")
     (.wrapper
      :color "#868e96")
@@ -53,7 +57,7 @@
 
 (defmethod page-css append ((page index))
   `((body
-     :text-align center
+     :text-align left
      :margin-left 25%
      :margin-right 25%)
     (":media (orientation: portrait)"
@@ -63,7 +67,7 @@
       :margin-left 3%))))
 
 (defmethod page-css append ((c display-condition))
-  (page-css (make-instance 'blog)))
+  nil)
 
 (defgeneric scoped-css (page)
   (:documentation "Generates scoped css for an entry."))

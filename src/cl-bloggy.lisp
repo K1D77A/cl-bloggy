@@ -178,12 +178,13 @@ the final category would have to be new. So categories are found by their parent
 
 (defun add-index (acceptor index-class)
   "Initializes the main blog index at PATH"
-  (add-route
-   (make-route :get (url (make-instance index-class))
-               (lambda ()
-                 (let ((index (make-instance index-class :blog (blog acceptor))))
-                   (to-html index))))
-   acceptor))
+  (let ((index (make-instance index-class :blog (blog acceptor))))
+    (setf (index (blog acceptor)) index)
+    (add-route
+     (make-route :get (url (make-instance index-class))
+                 (lambda ()
+                   (to-html index)))
+     acceptor)))
 
 (defmethod delete-entry ((acceptor bloggy-acceptor) (entry entry))
   (with-accessors ((blog blog)

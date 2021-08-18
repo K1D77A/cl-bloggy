@@ -20,13 +20,21 @@ for your own subclasses the same goes for the three methods it calls."))
 
 (defmethod to-html ((entry entry))
   (spinneret:with-html 
-    (:a :id "home-link" :href (url (blog entry)) "Home")))
+    (:a :id "home-link" :href (url (blog entry)) "Home")
+    (:a :id "index-link" :href (url (index (blog entry))) "Index")))
 
 (defmethod to-html ((c display-condition))
   (spinneret:with-html
-    (:a :id "home-link" :href (url (blog (c c))) "Home")))
+    (:a :id "home-link" :href (url (blog (c c))) "Home")
+    (:a :id "index-link" :href (url (index (blog (c c)))) "Index")))
 
+(defmethod to-html ((index index))
+  (spinneret:with-html
+    (:a :id "home-link" :href (url (blog index)) "Home")))
 
+(defmethod to-html ((blog blog))
+  (spinneret:with-html
+    (:a :id "index-link" :href (url (index blog)) "Index")))
 
 (defmethod to-html ((blog blog))
   nil)
