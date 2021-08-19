@@ -56,6 +56,13 @@
      :margin-bottom 5vw)
     (".entry"
      :padding-left 10px)
+    (".title-and-icons"
+     :display flex
+     :flex-display row)
+    (".rss-link"
+     :margin-left 1vw)
+    (".rss-icon"
+     :height 20px)
     (".entry:hover"
      :border-color "var(--bordercolour)"
      :border-left-style solid

@@ -109,9 +109,14 @@ for your own subclasses the same goes for the three methods it calls."))
       blog
     (spinneret:with-html
       (:div :class "title-box"
-            (:h1 :class "blog-title title" (funcall title  blog))
-            (:h2 :class "blog-description description" (funcall description blog))
-            (:tag :name :svg :src (format nil "~A/images/rss.svg" (url content))))
+            (:div :class "title-and-icons"
+                  (:h1 :class "blog-title title" (funcall title  blog))
+                  (:a :class "rss-link" :href (format nil "~A/rss.xml"
+                                                      (url blog))
+                      (:img :class "rss-icon"
+                            :src (format nil "~A/images/rss.png" (url content)))))
+            (:h2 :class "blog-description description" (funcall description blog)))
+      
       (:div :class "entries"
             (dolist (blog (sort entries #'> :key #'order))
               (:div :class "entry"

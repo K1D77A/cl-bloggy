@@ -33,6 +33,7 @@
 (add-content *server* 'my-content)
 
 (easy-image *server* "blog-content/images/rss.svg")
+(easy-image *server* "blog-content/images/rss.png")
 
 (easy-blog-entry (*server* my-entry 1 ("general" "test") "A story to tell"
                   (:month "June" :day 23 :hour 14 :minute 32))
