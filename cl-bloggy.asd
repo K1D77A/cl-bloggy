@@ -5,7 +5,7 @@
 The user writes blog entries by connecting to their remote image with sly/slime and 
 creates new entries by writing HTML using spinneret."
   :author "K1D77A"
-  :license  "LLGPL"
+  :license  "GPL-3"
   :version "2.0.0"
   :serial t
   :depends-on (#:hunchentoot
