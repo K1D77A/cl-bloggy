@@ -1,9 +1,7 @@
 (in-package #:cl-bloggy)
 
-(defparameter *blog-root-directory* "/blog/main/")
+(defparameter *blog-root-directory* "/blog/main")
 (defparameter *blog-index-directory* "/blog/index")
-
-
 
 (defclass special-request ()
   ((acceptor
@@ -52,7 +50,12 @@
     :accessor title
     :initarg :title
     :initform nil
-    :type (or string null function))
+    :type (or null function))
+   (subtitle
+    :accessor subtitle
+    :initarg :subtitle
+    :initform nil
+    :type (or null function))
    (order
     :accessor order
     :initarg :order
@@ -70,7 +73,7 @@
     :accessor description
     :initarg :description
     :initform nil
-    :type (or function string null))
+    :type (or function null))
    (blog
     :accessor blog
     :initarg :blog
@@ -85,8 +88,10 @@
    (title
     :accessor title
     :initarg :title
-    :initform "Main page"
-    :type string)
+    :initform (lambda (blog)
+                (declare (ignore blog))
+                "Main page")
+    :type (or function nil))
    (categories
     :accessor categories
     :initarg :categories
@@ -95,7 +100,10 @@
    (author
     :accessor author
     :initarg :author
-    :type string)
+    :initform (lambda (blog)
+                (declare (ignore blog))
+                "Author")
+    :type (or function nil))
    (domain
     :accessor domain
     :initarg domain
@@ -103,8 +111,10 @@
    (description
     :accessor description
     :initarg :description
-    :initform ""
-    :type string)
+    :initform (lambda (blog)
+                (declare (ignore blog))
+                "My blog")
+    :type (or function nil))
    (language
     :accessor language
     :initarg :language
@@ -199,13 +209,29 @@
                    (entries blog)))
   (push entry (entries blog)))
 
-(defun new-blog-entry (blog blog-class number title category date content)
+(defun new-blog-entry (blog blog-class number title category date content
+                       &key (subtitle nil)
+                         (description nil))
   (check-type content function)
   (let ((entry (make-instance blog-class 
                               :category category
                               :date date
+                              :subtitle
+                              (if (stringp subtitle)
+                                  (lambda (e) (declare (ignore e))
+                                    subtitle)
+                                  subtitle)
+                              :description 
+                              (if (stringp description)
+                                  (lambda (e) (declare (ignore e))
+                                    description)
+                                  description)
                               :order number
-                              :title title
+                              :title
+                              (if (stringp title)
+                                  (lambda (e) (declare (ignore e))
+                                    title)
+                                  title)
                               :content content
                               :blog blog 
                               :id (make-id category title))))

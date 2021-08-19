@@ -30,6 +30,19 @@
   (:report
    (lambda (obj stream) (display-condition stream obj :internal))))
 
+(define-condition exceeded-category-depth (request-condition)
+  ((http-code :initform 400)
+   (cat-list
+    :accessor cat-list
+    :initarg :cat-list
+    :type list
+    :documentation "the category request found while processing the URI"))
+  (:documentation "Signalled by find-category when the category list is greater than 
+*max-category-depth*")
+  (:report
+   (lambda (obj stream)
+     (display-condition stream obj :internal))))
+
 (define-condition rss%bad-categories (request-condition)
   ((http-code :initform 404)
    (category
@@ -50,6 +63,15 @@ they have used bad categories."))
   (:documentation "Signalled when someone makes a request for sorting by categories 
 but the categories they provided can't be found."))
 
+(define-condition missing-content (request-condition)
+  ((http-code :initform 404))
+  (:documentation "Signalled when someone makes a request to a url that doesn't exist."))
+
+(define-condition malformed-url (request-condition)
+  ((http-code :initform 400))
+  (:documentation "Signalled when someone makes a request that is neither for the index 
+or main but is missing blog/main."))
+
 (defgeneric display-condition (stream condition way &rest args)
   (:documentation "Displays the condition to the user."))
 
@@ -62,12 +84,9 @@ but the categories they provided can't be found."))
           (call-next-method)
           (message condition)))
 
-(defmethod display-condition (stream (condition request-condition)
-                              (way (eql :html)) &rest args)
+(defmethod display-condition (stream condition (way (eql :html)) &rest args)
   (declare (ignore args))
-  (let ((page (make-instance (condition-display-class (blog condition))
-                             :c condition)))
-    (to-html page)))
+  (to-html condition))
 
 (defmethod display-condition (stream condition way &rest args)
   (declare (ignore args))

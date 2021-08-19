@@ -23,10 +23,10 @@ for your own subclasses the same goes for the three methods it calls."))
     (:a :id "home-link" :href (url (blog entry)) "Home")
     (:a :id "index-link" :href (url (index (blog entry))) "Index")))
 
-(defmethod to-html ((c display-condition))
+(defmethod to-html ((c request-condition))
   (spinneret:with-html
-    (:a :id "home-link" :href (url (blog (c c))) "Home")
-    (:a :id "index-link" :href (url (index (blog (c c)))) "Index")))
+    (:a :id "home-link" :href (url (blog c)) "Home")
+    (:a :id "index-link" :href (url (index (blog c))) "Index")))
 
 (defmethod to-html ((index index))
   (spinneret:with-html
@@ -68,7 +68,8 @@ for your own subclasses the same goes for the three methods it calls."))
                    (title title)
                    (date date)
                    (content content)
-                   (category category))
+                   (category category)
+                   (subtitle subtitle))
       entry
     (spinneret:with-html
       (:div :class "content"
@@ -76,7 +77,7 @@ for your own subclasses the same goes for the three methods it calls."))
                   (scoped-css entry)
                   (:a :href
                       (process-uri entry :encode)
-                      (:h2 :class "purple" title))
+                      (:h2 :class "purple" (funcall title entry)))
                   (:h4 :class "purple" (format-timestamp nil date :site))
                   (:div :class "tags"
                         (:span "Tags: ")
@@ -86,27 +87,36 @@ for your own subclasses the same goes for the three methods it calls."))
                         (funcall content entry)))))))
 
 (defmethod html-body ((index index))
-  (spinneret:with-html
-    (:div :id "entries-list"
-          (dolist (entry (entries (blog index)))
-            (:div :class "index-entry"
-                  (:a :href (process-uri entry :encode)
-                      (format nil "Title: ~A Date: ~A"
-                              (title entry) (format-timestamp nil (date entry) :site))))))))
+  (with-accessors ((title title)
+                   (blog blog))
+      index 
+    (spinneret:with-html
+      (:div :id "entries-list"
+            (dolist (entry (entries blog))
+              (:div :class "index-entry"
+                    (:a :href (process-uri entry :encode)
+                        (format nil "Title: ~A Date: ~A"
+                                (funcall title index)
+                                (format-timestamp nil (date entry) :site)))))))))
 
 (defmethod html-body ((blog blog))
-  (spinneret:with-html
-    (:h1 :class "purple" (title blog))
-    (:div :id "all-entries"
-          (dolist (blog (sort (entries blog) #'> :key #'order))
-            (:div :class "entry"
-                  :id (id blog)
-                  (html-body blog))))))
+  (with-accessors ((title title)
+                   (description description)
+                   (entries entries))
+      blog
+    (spinneret:with-html
+      (:h1 :class "purple" (funcall title  blog))
+      (:h2 :class "purple" (funcall description blog))
+      (:div :id "all-entries"
+            (dolist (blog (sort entries #'> :key #'order))
+              (:div :class "entry"
+                    :id (id blog)
+                    (html-body blog)))))))
 
-(defmethod html-body ((c display-condition))
+(defmethod html-body ((c request-condition))
   (with-accessors ((http-code http-code)
                    (message message))
-      (c c)
+      c 
     (spinneret:with-html
       (:h1 :class "purple" http-code)
       (:h3 :class "purple" message))))
@@ -143,8 +153,9 @@ for your own subclasses the same goes for the three methods it calls."))
                    (language language))
       blog
     (xml-emitter:rss-channel-header
-     title (format nil "~A~A" domain url)
-     :description description :language language)
+     (funcall title blog) (format nil "~A~A" domain url)
+     :description
+     (funcall description blog) :language language)
     (mapc (lambda (entry)
             (generate-rss stream entry))
           entries)))
@@ -158,18 +169,17 @@ for your own subclasses the same goes for the three methods it calls."))
                    (description description))
       entry
     (xml-emitter:rss-item
-     title :link (format nil "~A~A" (domain blog)
-                         (process-uri entry :encode))
+     (funcall title entry)
+     :link (format nil "~A~A" (domain blog)
+                   (process-uri entry :encode))
      :category (generate-rss stream category)
      :pubdate (format-timestamp stream date :rss)
-     :author (author blog)
+     :author (funcall (author blog) blog)
      :description
      (let* ((my-stream (make-string-output-stream))
             (*standard-output* my-stream))
-       (typecase description
-         (string description)
-         (function (funcall description entry))
-         (null (funcall content entry)))
+       (when description
+         (funcall description entry))
        (get-output-stream-string my-stream)))))
 
 

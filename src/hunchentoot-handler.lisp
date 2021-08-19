@@ -48,12 +48,13 @@ hunchentoot"
 
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor bloggy-acceptor) request)
   (let* ((method (hunchentoot:request-method* request))
-         (uri (hunchentoot:request-uri* request)));not grabbing the params
+         (uri (hunchentoot:request-uri* request)))
     (print (process-uri uri :decode))
     (let ((route (gethash uri (routes acceptor))))
       (if route 
           (destructuring-bind (method2 url handler)
               route
+            (declare (ignore url))
             (if (equal method2 method)
                 (funcall handler)
                 (call-next-method)))

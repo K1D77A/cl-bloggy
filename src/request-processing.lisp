@@ -6,16 +6,33 @@
 (defmethod handle-unknown-uri :around (acceptor request uri method)
   (handler-case
       (call-next-method)
-    (error (c)
+    (request-condition (c)
       (setf (tbnl:return-code*) (http-code c))
-      (display-condition nil c :html))))
+      (display-condition nil c :html))
+    (error ()
+      (setf (tbnl:return-code*) 500)
+      (display-condition nil 
+                         (make-condition 'request-condition
+                                         :blog (blog acceptor)
+                                         :message "Unknown error"
+                                         :http-code 500)
+                         :html))))
 
+(defun %validate-url (uri-list blog)
+  (let* ((split-url (str:split "/" (url blog) :omit-nulls t))
+         (uri-len (length split-url)))
+    (unless (and (<= uri-len (length uri-list))
+                 (tree-equal (subseq uri-list 0 uri-len)
+                             split-url :test #'string-equal))
+      (error 'malformed-url :message #.(format nil "Malformed URL.")
+             :blog blog))))
 
 (defmethod handle-unknown-uri (acceptor request uri method)
   (with-accessors ((blog blog))
       acceptor
     (multiple-value-bind (clean-uri uri-list)
         (process-uri uri :decode)
+      (%validate-url uri-list blog)
       (let* ((clean-uri-list
                (nreverse (set-difference uri-list
                                          (str:split "/" (url blog) :omit-nulls t)
@@ -33,6 +50,7 @@
 
 (defmethod determine-request-type ((special special-request))
   (let ((end (first (last (split-uri special)))))
+    (print end)
     (if (string-equal end "rss.xml");we now know its an rss request
         (%rss-request-type special)
         (%non-rss-request-type special))))
@@ -44,27 +62,36 @@
       special 
     (let* ((remainder (nbutlast split-uri))
            (cat (find-category remainder (blog acceptor) nil)))
+      (print remainder)
       (if cat
           (progn (setf category cat)
                  'rss-category-request)
-          (error 'rss%bad-categories
-                 :category remainder
-                 :blog (blog acceptor)
-                 :message "Request made for an rss feed for categories that do not exist.")))))
+          (if remainder
+              (error 'rss%bad-categories
+                     :category remainder
+                     :blog (blog acceptor)
+                     :message #.(format nil "Request made for an rss feed ~
+                                        for categories that do not exist."))
+              'rss-request)))))
 
 (defun %non-rss-request-type (special)
   (with-accessors ((split-uri split-uri)
                    (acceptor acceptor)
-                   (category category)) 
+                   (category category)
+                   (uri uri))
       special
     (let ((cat (find-category split-uri (blog acceptor) nil)))
       (if cat
           (progn (setf category cat)
                  'category-request)
-          (error 'missing-categories
-                 :category split-uri
-                 :blog (blog acceptor)
-                 :message "Request made to sort by categories but the categories do not exist.")))))
+          (if (char= (aref uri (1- (length uri))) #\/)
+              (error 'missing-categories 
+                     :category split-uri
+                     :blog (blog acceptor)
+                     :message #.(format nil "Request made to sort by categories ~
+                                             but the categories do not exist."))
+              (error 'missing-content :blog (blog acceptor)
+                                      :message "No content at URL"))))))
         
 
 (defgeneric process-special-request (special-request)
@@ -90,20 +117,27 @@ expected."))
 (defmethod process-special-request ((request category-request))
   (with-accessors ((split-uri split-uri)
                    (acceptor acceptor)
-                   (category category))
+                   (category category)
+                   (uri uri))
       request
     (let* ((blog (blog acceptor))
            (entries (entries-in-category category blog)))
+      (print uri)
       (if entries
           (with-accessors ((categories categories))
               blog
             (to-html (make-instance (class-of (blog acceptor))
                                     :categories categories
-                                    :title (name category)
+                                    :title (lambda (blog)
+                                             (declare (ignore blog))
+                                             (name category))
                                     :entries entries)))
-          (error 'missing-categories :category split-uri
-                                     :blog (blog acceptor)
-                                     :message "No such categories")))))
+          (if (char= (aref uri (1- (length uri))) #\/)
+              (error 'missing-categories :category split-uri
+                                         :blog (blog acceptor)
+                                         :message "No such categories")
+              (error 'missing-content :blog (blog acceptor)
+                                      :message "No content at URL"))))))
 
 (defmethod process-special-request ((request rss-category-request))
   (with-accessors ((acceptor acceptor)
@@ -115,13 +149,15 @@ expected."))
            (stream (make-string-output-stream)))
       (setf (tbnl:content-type*) "application/xml")
       (setf (tbnl:return-code*) 200)
-      (print entries)
       (xml-emitter:with-rss2 (stream)
         (with-accessors ((categories categories))
             blog
           (generate-rss stream
                         (make-instance (class-of blog)
                                        :categories categories
-                                       :title (name category)
+                                       :title
+                                       (lambda (blog)
+                                         (declare (ignore blog))
+                                         (name category))
                                        :entries entries))))
       (get-output-stream-string stream))))

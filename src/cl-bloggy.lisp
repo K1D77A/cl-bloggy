@@ -2,6 +2,8 @@
 
 (in-package #:cl-bloggy)
 
+(defparameter *max-category-depth* 10)
+
 (defgeneric process-uri (e key)
   (:documentation "Generates the correct url for E. Key is the method to use."))
 
@@ -12,14 +14,14 @@
     (let ((names (category-names cat)))
       (reduce #'str:concat
               (append
-               (list (url (blog entry)))
+               (list (url (blog entry)) "/")
                (mapcar (lambda (name)
                          (str:concat (do-urlencode:urlencode name) "/"))
                        names)
-               (list (do-urlencode:urlencode title)))))))
+               (list (do-urlencode:urlencode (funcall title entry))))))))
 
 (defmethod process-uri ((uri string) (key (eql :decode)))
-  (let ((split (str:split "/" uri :omit-nulls t)))
+  (let ((split (str:split "/" uri :omit-nulls t :limit (* 2 *max-category-depth*))))
     (values 
      (format nil "~{~A~^/~}"
              (let ((decoded 
@@ -78,8 +80,10 @@ accumulator."
                       categories)
             :collect entry)))
 
-(defmacro easy-blog-entry ((blog-class number categories title date acceptor
-                            &optional (let-bindings-to-override-global-vars nil)) &body body)
+(defmacro easy-blog-entry ((acceptor blog-class number categories title date
+                            &key (subtitle nil)
+                              (description nil)                            
+                              (let-bindings-to-override-global-vars nil)) &body body)
   "Takes BLOG-CLASS (a subclass of 'blog-entry' or an instance of blog-entry) 
 and creates a new page at the url '*blog-root-directory*/CATEGORY/TITLE'.
 You can add this to any arbitrary running instance of hunchentoot as long as it was
@@ -89,13 +93,16 @@ used in the render pipeline however I recommend you simply create subclass and
 specialize methods on that subclass instead. BODY must be valid spinneret code, it
 is an implicit (spinneret:with-html ,@body ) so you can enter any arbitrary HTML
 using spinneret, use wisely."
-  (alexandria:with-gensyms (new-entry)
-    `(let ((,new-entry
-             (new-blog-entry (blog ,acceptor) ',blog-class ,number ,title
-                             (find-category ',categories (blog ,acceptor))
-                             (apply #'new-date-timestamp ',date)
-                             (lambda (entry) (declare (ignorable entry))
-                               (spinneret:with-html ,@body)))))
+  (alexandria:with-gensyms (new-entry category timestamp)
+    `(let* ((,category (find-category ',categories (blog ,acceptor)))
+            (,timestamp (apply #'new-date-timestamp ',date))
+            (,new-entry
+              (new-blog-entry (blog ,acceptor) ',blog-class ,number ,title
+                              ,category ,timestamp
+                              (lambda (entry) (declare (ignorable entry))
+                                (spinneret:with-html ,@body))
+                              :subtitle ,subtitle
+                              :description ,description)))
        (add-route
         (make-route :GET
                     (process-uri ,new-entry :encode)
@@ -112,6 +119,10 @@ List contains the names of the categories, say ('general' 'programming' 'common 
 'generics') the correct category would be the very final one, that is a child of 
 each of those categories successively, if you swapped 'common lisp' for 'clojure' then 
 the final category would have to be new. So categories are found by their parents."
+  (unless (<= (length list) *max-category-depth*)
+    (error 'exceeded-category-depth :cat-list list
+                                    :blog blog
+                                    :message "Exceeded maximum category depth"))
   (with-accessors ((categories categories))
       blog
     (labels ((check-for-kids (category names)
@@ -128,12 +139,11 @@ the final category would have to be new. So categories are found by their parent
              (found? (find current categories :key #'name :test #'string-equal)))
         (if found?
             (check-for-kids found? remainder)
-            (when createp 
-              (push 
-               (make-children (make-instance 'category :name current
-                                                       :sym (intern current))
-                              remainder)
-               categories)))))))
+            (when createp
+              (let ((cat (make-instance 'category :name current
+                                                  :sym (intern current))))
+                (push (make-children cat remainder) categories)
+                (find-category list blog nil))))))))
 
 (defun make-children (current names)
   (labels ((rec (parent childs)
@@ -190,10 +200,9 @@ the final category would have to be new. So categories are found by their parent
   (with-accessors ((blog blog)
                    (routes routes))
       acceptor
-    (let ((uri (normalize-category-and-title entry)))
-      (setf routes
-            (remove uri routes :key #'second :test #'string-equal)
-            (entries blog)
+    (let ((uri (process-uri entry :encode)))
+      (remhash uri routes)
+      (setf (entries blog)
             (remove entry (entries blog) :test #'eq)))))
 
 (defmethod delete-entry ((acceptor bloggy-acceptor) (entry null)))
@@ -216,3 +225,37 @@ the final category would have to be new. So categories are found by their parent
   (local-time:format-timestring stream timestamp 
                                 :format local-time:+rfc-1123-format+))
 
+
+(defgeneric find-entry (check blog)
+  (:documentation "Uses CHECK to try and find entry in BLOG."))
+
+(defmethod find-entry ((n fixnum) blog)
+  (find n (entries blog) :key #'order :test #'=))
+
+(defmethod delete-category ((category list) blog)
+  (delete-category (find-category category blog nil) blog))
+
+(defmethod delete-category ((category null) blog)
+  nil)
+
+(defmethod delete-category ((category category) blog)
+  "Deletes a category."
+  (with-accessors ((parent parent))
+      category
+    (if parent
+        (with-accessors ((children children))
+            parent
+          (setf (children parent)
+                (remove category children :test #'eq)))
+        ;;if no parent then we know its top level
+        (with-accessors ((categories categories))
+            blog
+          (setf categories (remove category categories :test #'eq))))))
+
+(defmethod clean-category (acceptor (category category))
+  (with-accessors ((blog blog))
+      acceptor 
+    (mapcar (lambda (entry)
+              (delete-entry acceptor entry))
+            (entries-in-category category blog))
+    (delete-category category blog)))
