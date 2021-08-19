@@ -32,6 +32,12 @@
                decoded))
      split)))
 
+(defmethod process-uri ((im image-upload) (key (eql :upload)))
+  (let* ((ac (acceptor im))
+         (blog (blog ac))
+         (content (content blog)))
+    (format nil "~A/images/~A" (url content) (image-name im))))
+
 (defun %recurse-categories-parents (category func)
   "Recurses over the category and all of its parents executing func with the current 
 category and the accumulator as arguments, the result of the funcall is pushed to the 
@@ -195,6 +201,10 @@ the final category would have to be new. So categories are found by their parent
                  (lambda ()
                    (to-html index)))
      acceptor)))
+
+(defun add-content (acceptor content-class)
+  (let ((content (make-instance content-class :blog (blog acceptor))))
+    (setf (content (blog acceptor)) content)))
 
 (defmethod delete-entry ((acceptor bloggy-acceptor) (entry entry))
   (with-accessors ((blog blog)

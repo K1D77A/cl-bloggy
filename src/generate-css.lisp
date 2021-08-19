@@ -1,6 +1,8 @@
 (in-package #:cl-bloggy)
 
 
+
+
 (defgeneric page-css (page)
   (:method-combination append :most-specific-last)
   (:documentation "Generates CSS for page"))
@@ -11,60 +13,57 @@
             (apply #'lass:compile-and-write (call-next-method)))))
 
 (defmethod page-css append (page)
-  `((html
-     :background-color "#212529"
+  `((":root"
+     :--colourone "#d5d7d6";pinky
+     :--colourtwo "#00314f";dark blue
+     :--colourthree "#736a7b";purply grey
+     :--colourfour "#5e8930";green
+     :--background "var(--colourone)"
+     :--fprimary "var(--colourtwo)"
+     :--fsecondary "var(--colourfour)"
+     :--fnormal "var(--colourtwo)"
+     :--fsize "15pt"
+     :--bordercolour "var(--colourtwo)")
+    (".title"
+     :color "var(--fprimary)")
+    (".date"
+     :color "var(--fsecondary)")
+    (".description"
+     :color "var(--fsecondary)")
+    (".tags"
+     :colour "var(--fsecondary)")
+    (".http-code"
+     :color "var(--fprimary)")
+    (".message"
+     :colour "var(--fsecondary)")
+    (p
+     :font-size "var(--fsize)")
+    (html
+     :background-color "var(--background)"
      :padding 5vw
      :padding-right 10vw
+     :color "var(--fnormal)"     
      :margin-left 0
      :margin-right 0
      :max-height 100%
-     :height 100%)
-    ("html p"
-     :font-size 15pt)))
+     :height 100%)))
 
 (defmethod page-css append ((page entry))
-  `((body
-     :text-align center
-     :margin-left 25%
-     :margin-right 25%)
-    (:media "(orientation: portrait)"
-            (body
-             :text-align center
-             :margin-left 3%
-             :margin-right 3%))
-    ("#home-link"
-     :font-weight bold)
-    ("#content"
-     ;;general rules for all the content
-     )
-    ("#body-title"
-     :font-size 4vw)
-    ("#body-h2")
-    ("#body-h3")
-    ("#user-content")
-    ("#body-h3")))
+  nil)
 
 (defmethod page-css append ((page blog))
-  `((.purple
-     :color "#9B4DCA")
-    (.wrapper
-     :color "#868e96")
-    ("media (orientation: portrait)"
-     (body
-      :text-align center
-      :margin-right 3%
-      :margin-left 3%))))
+  `((".title-box"
+     :margin-bottom 5vw)
+    (".entry"
+     :padding-left 10px)
+    (".entry:hover"
+     :border-color "var(--bordercolour)"
+     :border-left-style solid
+     :border-left-width 3px
+     :padding-left 7px)))
 
 (defmethod page-css append ((page index))
-  `((body
-     :text-align left
-     :margin-left 25%
-     :margin-right 25%)
-    (":media (orientation: portrait)"
-     (body
-      :text-align center
-      :margin-right 3%
-      :margin-left 3%))))
+  nil)
 
 (defmethod page-css append ((c display-condition))
   nil)

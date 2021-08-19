@@ -130,6 +130,10 @@
     :accessor index
     :initarg :index
     :type index)
+   (content
+    :accessor content
+    :initarg content
+    :type content)
    (url
     :reader url
     :initarg :url
@@ -150,6 +154,14 @@
     :accessor parent
     :initarg :parent
     :initform nil)))
+
+(defclass content ()
+  ((url
+    :reader url
+    :initform "/blog/content")
+   (blog
+    :reader blog
+    :initarg :blog)))
 
 (defclass index (blog)
   ((blog

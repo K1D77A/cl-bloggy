@@ -77,8 +77,10 @@ for your own subclasses the same goes for the three methods it calls."))
                   (scoped-css entry)
                   (:a :href
                       (process-uri entry :encode)
-                      (:h2 :class "purple" (funcall title entry)))
-                  (:h4 :class "purple" (format-timestamp nil date :site))
+                      (:h2 :class "title" (funcall title entry)))
+                  (:h3 :class "subtitle"
+                       (when subtitle (funcall subtitle entry)))
+                  (:h4 :class "date" (format-timestamp nil date :site))
                   (:div :class "tags"
                         (:span "Tags: ")
                         (dolist (name (category-names category))
@@ -102,12 +104,15 @@ for your own subclasses the same goes for the three methods it calls."))
 (defmethod html-body ((blog blog))
   (with-accessors ((title title)
                    (description description)
-                   (entries entries))
+                   (entries entries)
+                   (content content))
       blog
     (spinneret:with-html
-      (:h1 :class "purple" (funcall title  blog))
-      (:h2 :class "purple" (funcall description blog))
-      (:div :id "all-entries"
+      (:div :class "title-box"
+            (:h1 :class "blog-title title" (funcall title  blog))
+            (:h2 :class "blog-description description" (funcall description blog))
+            (:tag :name :svg :src (format nil "~A/images/rss.svg" (url content))))
+      (:div :class "entries"
             (dolist (blog (sort entries #'> :key #'order))
               (:div :class "entry"
                     :id (id blog)
@@ -118,8 +123,8 @@ for your own subclasses the same goes for the three methods it calls."))
                    (message message))
       c 
     (spinneret:with-html
-      (:h1 :class "purple" http-code)
-      (:h3 :class "purple" message))))
+      (:h1 :class "http-code" http-code)
+      (:h3 :class "message" message))))
 
 (defmethod html-footer :around (page)
   (spinneret:with-html
