@@ -1,10 +1,12 @@
 ;;;; cl-bloggy.asd
 
 (asdf:defsystem #:cl-bloggy
-  :description "A simple extendable blogging system to use with Hunchentoot"
+  :description "A self hosted and extensible blogging system built atop Hunchentoot. 
+The user writes blog entries by connecting to their remote image with sly/slime and 
+creates new entries by writing HTML using spinneret."
   :author "K1D77A"
-  :license  "MIT"
-  :version "0.0.1"
+  :license  "LLGPL"
+  :version "2.0.0"
   :serial t
   :depends-on (#:hunchentoot
                #:spinneret

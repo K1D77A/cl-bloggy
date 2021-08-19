@@ -56,7 +56,16 @@ hunchentoot"
               route
             (declare (ignore url))
             (if (equal method2 method)
-                (funcall handler)
+                (handler-case 
+                    (funcall handler)
+                  (error ()
+                    (setf (tbnl:return-code*) 500)
+                    (display-condition nil 
+                                       (make-condition 'request-condition
+                                                       :blog (blog acceptor)
+                                                       :message "Unknown error"
+                                                       :http-code 500)
+                                       :html)))
                 (call-next-method)))
           (handle-unknown-uri acceptor request uri method)))))
 

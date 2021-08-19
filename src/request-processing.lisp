@@ -62,7 +62,6 @@
       special 
     (let* ((remainder (nbutlast split-uri))
            (cat (find-category remainder (blog acceptor) nil)))
-      (print remainder)
       (if cat
           (progn (setf category cat)
                  'rss-category-request)
