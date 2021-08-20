@@ -4,6 +4,11 @@
   (:use #:cl)
   (:nicknames :bloggy)
   (:export
+   ;;;;hunchentoot-handler.lisp
+   #:make-route
+   #:add-route
+   #:remove-route
+
    ;;;;classes.lisp
    ;;;global vars
    #:*blog-root-directory*
