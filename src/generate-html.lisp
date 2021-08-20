@@ -33,8 +33,8 @@ for your own subclasses the same goes for the three methods it calls."))
     (:a :id "home-link" :href (url (blog index)) "Home")))
 
 (defmethod to-html ((blog blog))
-  (spinneret:with-html
-    (:a :id "index-link" :href (url (index blog)) "Index")))
+  nil)
+
 
 (defmethod to-html ((blog blog))
   nil)
@@ -97,14 +97,15 @@ for your own subclasses the same goes for the three methods it calls."))
             (dolist (entry (entries blog))
               (:div :class "index-entry"
                     (:a :href (process-uri entry :encode)
-                        (:h2 :class "index-title"
+                        (:h2 :class "index-title title"
                              (funcall (title entry) entry))
-                        (:h4 :class "index-tags"
+                        (:h4 :class "index-tags tags"
+                             (:span "Tags: ")
                              (dolist (name (category-names (category entry)))
                                (:span name " ")))
-                        (:h3 :class "index-date"
+                        (:h3 :class "index-date date"
                              (format-timestamp nil (date entry) :site))
-                        (:h4 :class "index-description"
+                        (:h4 :class "index-description description"
                              (when (description entry)
                                (funcall (description entry) entry))))))))))
 
@@ -116,6 +117,7 @@ for your own subclasses the same goes for the three methods it calls."))
       blog
     (spinneret:with-html
       (:div :class "title-box"
+            (:a :id "index-link" :href (url (index blog)) "Index")
             (:div :class "title-and-icons"
                   (:h1 :class "blog-title title" (funcall title  blog))
                   (:a :class "rss-link" :href (format nil "~A/rss.xml"
