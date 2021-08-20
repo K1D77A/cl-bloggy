@@ -52,6 +52,8 @@ new :root and override the values of :--colourone etc."))
      :margin-right 1vw)
     (p
      :font-size "var(--fsize)")
+    (span
+     :font-size "var(--fsize)")
     (pre
      :border-color "var(--fsecondary)")
     (html
