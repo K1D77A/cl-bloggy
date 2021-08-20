@@ -1,5 +1,10 @@
 (in-package #:cl-bloggy)
 
+(defparameter *default-css*
+  '("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"
+    "https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css"
+    "https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"))
+
 (defgeneric to-html (e)
   (:documentation "The entry function used to create HTML pages. This method calls
 'html-headers' html-body' and 'html-footer' in that order in order to render a 
@@ -32,20 +37,13 @@ for your own subclasses the same goes for the three methods it calls."))
   (spinneret:with-html
     (:a :id "home-link" :href (url (blog index)) "Home")))
 
-(defmethod to-html ((blog blog))
-  nil)
-
-
-(defmethod to-html ((blog blog))
+(defmethod to-html (page)
   nil)
 
 (defmethod html-headers :around (page)
   (spinneret:with-html
-    (:link :rel "stylesheet" :href
-           "https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css")
-    (:link :rel "stylesheet" :href
-           "https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css")
-    (:link :rel "stylesheet" :href "https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic")
+    (dolist (css *default-css*)
+      (:link :rel "stylesheet" :href css))
     (call-next-method)
     (page-css page)))
 
@@ -74,7 +72,6 @@ for your own subclasses the same goes for the three methods it calls."))
     (spinneret:with-html
       (:div :class "content"
             (:div :id id
-                  (scoped-css entry)
                   (:a :href
                       (process-uri entry :encode)
                       (:h2 :class "title" (funcall title entry)))
@@ -126,7 +123,7 @@ for your own subclasses the same goes for the three methods it calls."))
                             :src (url (find-content blog :rss-png)))))
             (:h2 :class "blog-description description" (funcall description blog)))
       (:div :class "entries"
-            (dolist (blog (sort entries #'> :key #'order))
+            (dolist (blog entries)
               (:div :class "entry"
                     :id (id blog)
                     (html-body blog)))))))

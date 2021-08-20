@@ -56,10 +56,6 @@
     :initarg :subtitle
     :initform nil
     :type (or null function))
-   (order
-    :accessor order
-    :initarg :order
-    :type fixnum)
    (id
     :reader id
     :initarg :id
@@ -120,12 +116,6 @@
     :initarg :language
     :initform "en-gb"
     :type string)
-   (condition-display-class
-    :accessor condition-display-class
-    :initarg :condition-display-class
-    :initform 'display-condition
-    :documentation
-    "The class that will be used for displaying error situations to the user.")
    (index
     :accessor index
     :initarg :index
@@ -219,14 +209,17 @@
             :return  x)))
 
 (defmethod add-new-blog ((blog blog) (entry entry))
-  (setf (entries blog)
-        (delete-if (lambda (ent)
-                     (or  (= (order ent) (order entry))
-                          (string-equal (id ent) (id entry))))
-                   (entries blog)))
-  (push entry (entries blog)))
+  (with-accessors ((entries entries))
+      blog
+    (setf entries
+          (delete-if (lambda (ent)
+                       (or (string-equal (id ent) (id entry))))
+                     entries))
+    (push entry entries)
+    (setf entries
+          (sort entries #'local-time:timestamp>= :key #'date))))
 
-(defun new-blog-entry (blog blog-class number title category date content
+(defun new-blog-entry (blog blog-class title category date content
                        &key (subtitle nil)
                          (description nil))
   (check-type content function)
@@ -243,7 +236,6 @@
                                   (lambda (e) (declare (ignore e))
                                     description)
                                   description)
-                              :order number
                               :title
                               (if (stringp title)
                                   (lambda (e) (declare (ignore e))

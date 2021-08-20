@@ -53,7 +53,7 @@ accumulator."
                       categories)
             :collect entry)))
 
-(defmacro easy-blog-entry ((acceptor blog-class number categories title date
+(defmacro easy-blog-entry ((acceptor blog-class categories title date
                             &key (subtitle nil)
                               (description nil)                            
                               (let-bindings-to-override-global-vars nil)) &body body)
@@ -70,7 +70,7 @@ using spinneret, use wisely."
     `(let* ((,category (find-category ',categories (blog ,acceptor)))
             (,timestamp (apply #'new-date-timestamp ',date))
             (,new-entry
-              (new-blog-entry (blog ,acceptor) ',blog-class ,number ,title
+              (new-blog-entry (blog ,acceptor) ',blog-class ,title
                               ,category ,timestamp
                               (lambda (entry) (declare (ignorable entry))
                                 (spinneret:with-html ,@body))
@@ -228,6 +228,9 @@ the final category would have to be new. So categories are found by their parent
         (with-accessors ((categories categories))
             blog
           (setf categories (remove category categories :test #'eq))))))
+
+(defgeneric clean-category (acceptor category)
+  (:documentation "Deletes all the entries that are in that category and then deletes it."))
 
 (defmethod clean-category (acceptor (category category))
   (with-accessors ((blog blog))

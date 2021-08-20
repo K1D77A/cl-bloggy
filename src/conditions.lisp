@@ -1,12 +1,5 @@
 (in-package #:cl-bloggy)
 
-(defclass display-condition ()
-  ((c
-    :reader c    
-    :initarg :c
-    :documentation "the condition"))
-  (:documentation "used to make the generation of HTML customizable."))
-
 (define-condition bloggy-condition (error)
   ((message
     :reader message

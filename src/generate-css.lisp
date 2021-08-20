@@ -92,18 +92,3 @@
 
 (defmethod page-css append ((c display-condition))
   nil)
-
-(defgeneric scoped-css (page)
-  (:documentation "Generates scoped css for an entry."))
-
-(defmethod scoped-css :around (page)
-  (spinneret:with-html
-    (:style :type "text-css"
-      (apply #'lass:compile-and-write (call-next-method)))))
-
-(defmethod scoped-css (page)
-  nil)
-
-(defmethod scoped-css ((page entry))
-  `((body
-     :background-color "green")))
