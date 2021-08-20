@@ -219,7 +219,7 @@ Ideally CONTENT-CLASS will be a subclass of content."
 (defmethod format-timestamp (stream timestamp (way (eql :site)))
   (local-time:format-timestring stream timestamp
                                 :format '(:ordinal-day " of " :long-month " "
-                                          :year  " at " :hour12 ":" :min :ampm)))
+                                          :year  " at " :hour12 ":" (:min 2) :ampm)))
 
 (defmethod format-timestamp (stream timestamp (way (eql :rss)))
   (local-time:format-timestring stream timestamp 

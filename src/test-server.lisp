@@ -46,7 +46,7 @@
         (:p "Another player started complaining at me because I called myself retarded. To explain I repeatedly hit the wrong button casting a ill-applicable spell causing the tank to die and as a consequence we all died.. anyway another player became quite upset after I called myself retarded... eventually they quit because we weren't sensitive enough.")))
 
 (easy-blog-entry (*server* my-entry  ("general") "I just don't understand." :test3
-                  (:month "June" :day 26))
+                  (:month "June" :day 26 :minute 1))
   (:div :class "elp"
         (dolist (item (lorem-ipsum:paragraphs 5))
           (:p item))))
