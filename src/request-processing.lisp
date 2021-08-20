@@ -136,6 +136,7 @@ Can signal 'missing-categories and 'missing-content."
             (to-html (make-instance (class-of (blog acceptor))
                                     :categories categories
                                     :content (content blog)
+                                    :index (index blog)
                                     :title (lambda (blog)
                                              (declare (ignore blog))
                                              (format nil "Category: ~:(~A~)"
@@ -169,6 +170,7 @@ Can signal 'missing-categories and 'missing-content."
                                        (lambda (blog)
                                          (declare (ignore blog))
                                          (format nil "Category: ~:(~A~)" (name category)))
+                                       :index (index blog)
                                        :content (content blog)
                                        :url (process-uri blog :category-url category)
                                        :entries entries))))

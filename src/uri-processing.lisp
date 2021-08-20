@@ -54,4 +54,6 @@ are at /images/ rather than /generic/"
 
 (defmethod process-uri ((blog blog) (key (eql :category-url)) &rest args)
   "When (first args) is a category, generates a url for that category."
-  (format nil "~A/~{~A~^/~}" (url blog) (category-names (first args))))
+  (format nil "~A/~{~A~^/~}" (url blog)
+          (mapcar #'do-urlencode:urlencode
+                  (category-names (first args)))))

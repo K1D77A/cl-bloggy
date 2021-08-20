@@ -38,14 +38,16 @@ new :root and override the values of :--colourone etc."))
      :color "var(--fsecondary)")
     (".description"
      :color "var(--fsecondary)")
-    (".tags"
-     :colour "var(--fsecondary)")
+    (".tags a"
+     :color "var(--fprimary)")
     (".http-code"
      :color "var(--fprimary)")
     (".message"
      :color "var(--fsecondary)")
     (a
      :color "var(--fsecondary)")
+    (".tags a"
+     :color "var(--colourthree)")
     ("#home-link"
      :padding-right 1vw)
     (p
@@ -93,12 +95,9 @@ new :root and override the values of :--colourone etc."))
      :margin-bottom 3px)
     (".index-date"
      :margin-left 5px)
-    (".index-tags")
     (".index-entry:hover"
      :border-color "var(--bordercolour)"
      :border-left-style solid
      :border-left-width 3px
      :padding-left 7px)))
 
-(defmethod page-css append ((c display-condition))
-  nil)

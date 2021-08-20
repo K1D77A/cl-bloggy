@@ -35,6 +35,13 @@ accumulator."
       (rec category)
       res)))
 
+(defmethod category-all-urls ((category category) (blog blog))
+  "Returns a list of all of the URLs for category"
+  (%recurse-categories-parents category
+                               (lambda (cat acc)
+                                 (declare (ignore acc))
+                                 (process-uri blog :category-url cat))))
+
 (defmethod category-names ((category category))
   "Returns the names of all of the names of categories in category."
   (%recurse-categories-parents category
@@ -219,7 +226,8 @@ Ideally CONTENT-CLASS will be a subclass of content."
 (defmethod format-timestamp (stream timestamp (way (eql :site)))
   (local-time:format-timestring stream timestamp
                                 :format '(:ordinal-day " of " :long-month " "
-                                          :year  " at " :hour12 ":" (:min 2) :ampm)))
+                                          :year  " at " (:hour 2) ":" (:min 2) :ampm " "
+                                          :timezone)))
 
 (defmethod format-timestamp (stream timestamp (way (eql :rss)))
   (local-time:format-timestring stream timestamp 

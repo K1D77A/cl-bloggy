@@ -187,9 +187,13 @@
                              (hour 0)
                              (day 1)
                              (month 1)
-                             (year 2021))
+                             (year 2021)
+                             (timezone local-time:*default-timezone*)
+                             offset
+                             into)
   (local-time:encode-timestamp nsec sec minute hour day
-                               (%convert-month-to-n month) year))
+                               (%convert-month-to-n month) year
+                               :timezone timezone :offset offset :into into))
 
 (defmethod %convert-month-to-n ((month fixnum))
   month)

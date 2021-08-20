@@ -68,13 +68,25 @@ of a certain page, you would create a new version of html-body for your subclass
 that page. In that case it would be best to simply copy and paste the code for the 
 superclass and then play with it that way, you dont want to end up breaking functionality."))
 
+(defun %format-tags (blog category)
+  (spinneret:with-html 
+    (:span "Tags: "
+           (mapc (lambda (tag url)
+                   (:span
+                    (:a :href url
+                        (format nil "~:(~A~)" tag) " ")))
+                 (category-names category)
+                 (category-all-urls category blog)))))
+
+
 (defmethod html-body ((entry entry))
   (with-accessors ((id id)
                    (title title)
                    (date date)
                    (content content)
                    (category category)
-                   (subtitle subtitle))
+                   (subtitle subtitle)
+                   (blog blog))
       entry
     (spinneret:with-html
       (:div :class "content"
@@ -86,9 +98,7 @@ superclass and then play with it that way, you dont want to end up breaking func
                        (when subtitle (funcall subtitle entry)))
                   (:h4 :class "date" (format-timestamp nil date :site))
                   (:div :class "tags"
-                        (:span "Tags: ")
-                        (dolist (name (category-names category))
-                          (:span name " ")))
+                        (%format-tags blog category))
                   (:div :id "user-content"
                         (funcall content entry)))))))
 
@@ -104,9 +114,7 @@ superclass and then play with it that way, you dont want to end up breaking func
                         (:h2 :class "index-title title"
                              (funcall (title entry) entry))
                         (:h4 :class "index-tags tags"
-                             (:span "Tags: ")
-                             (dolist (name (category-names (category entry)))
-                               (:span name " ")))
+                             (%format-tags blog (category entry)))
                         (:h3 :class "index-date date"
                              (format-timestamp nil (date entry) :site))
                         (:h4 :class "index-description description"
