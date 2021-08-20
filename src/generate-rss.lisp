@@ -51,9 +51,9 @@ the content function instead."
      :pubdate (format-timestamp stream date :rss)
      :author (funcall (author blog) blog)
      :description
-     (let* ((my-stream (make-string-output-stream))
-            (*standard-output* my-stream))
-       (if description
-           (funcall description entry)
-           (funcall content entry))
-       (get-output-stream-string my-stream)))))
+     (if description
+         (funcall description entry)
+         (let* ((my-stream (make-string-output-stream))
+                (*standard-output* my-stream))
+           (funcall content entry)
+           (get-output-stream-string my-stream))))))
