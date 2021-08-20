@@ -132,7 +132,7 @@
     :type index)
    (content
     :accessor content
-    :initarg content
+    :initarg :content
     :type content)
    (url
     :reader url

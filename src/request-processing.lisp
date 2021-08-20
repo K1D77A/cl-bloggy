@@ -127,9 +127,12 @@ expected."))
               blog
             (to-html (make-instance (class-of (blog acceptor))
                                     :categories categories
+                                    :content (content blog)
                                     :title (lambda (blog)
                                              (declare (ignore blog))
-                                             (name category))
+                                             (format nil "Category: ~:(~A~)"
+                                                     (name category)))
+                                    :url (process-uri blog :category-url category)
                                     :entries entries)))
           (if (char= (aref uri (1- (length uri))) #\/)
               (error 'missing-categories :category split-uri
@@ -142,7 +145,6 @@ expected."))
   (with-accessors ((acceptor acceptor)
                    (category category))
       request
-    (print category)
     (let* ((blog (blog acceptor))
            (entries (entries-in-category category blog))
            (stream (make-string-output-stream)))
@@ -157,6 +159,8 @@ expected."))
                                        :title
                                        (lambda (blog)
                                          (declare (ignore blog))
-                                         (name category))
+                                         (format nil "Category: ~:(~A~)" (name category)))
+                                       :content (content blog)
+                                       :url (process-uri blog :category-url category)
                                        :entries entries))))
       (get-output-stream-string stream))))
