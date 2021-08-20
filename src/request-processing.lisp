@@ -62,7 +62,6 @@ Can possibly signal 'rss%bad-categories, 'missing-categories, 'missing-content")
 
 (defmethod determine-request-type ((special special-request))
   (let ((end (first (last (split-uri special)))))
-    (print end)
     (if (string-equal end "rss.xml");we now know its an rss request
         (%rss-request-type special)
         (%non-rss-request-type special))))
@@ -129,7 +128,6 @@ Can signal 'missing-categories and 'missing-content."
       request
     (let* ((blog (blog acceptor))
            (entries (entries-in-category category blog)))
-      (print uri)
       (if entries
           (with-accessors ((categories categories))
               blog

@@ -129,6 +129,7 @@ superclass and then play with it that way, you dont want to end up breaking func
       blog
     (spinneret:with-html
       (:div :class "title-box"
+            (:a :id "home-link" :href (url blog) "Home")
             (:a :id "index-link" :href (url (index blog)) "Index")
             (:div :class "title-and-icons"
                   (:h1 :class "blog-title title" (funcall title  blog))

@@ -49,7 +49,7 @@ new :root and override the values of :--colourone etc."))
     (".tags a"
      :color "var(--colourthree)")
     ("#home-link"
-     :padding-right 1vw)
+     :margin-right 1vw)
     (p
      :font-size "var(--fsize)")
     (pre
