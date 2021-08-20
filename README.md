@@ -15,7 +15,7 @@ if you want to try it, clone the repo to quicklisp/local-projects, register loca
 (start)
 ```
 Navigate to `http://127.0.0.1:4203/blog/main` if the categories haven't loaded properly 
-then just recompile them individually with C-c C-c. 
+then just recompile each easy-blog-entry individually with C-c C-c. 
 
 ## Getting started
 
