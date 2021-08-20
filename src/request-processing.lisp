@@ -19,6 +19,7 @@
                          :html))))
 
 (defun %validate-url (uri-list blog)
+  ;;(printv:printv  
   (let* ((split-url (str:split "/" (url blog) :omit-nulls t))
          (uri-len (length split-url)))
     (unless (and (<= uri-len (length uri-list))

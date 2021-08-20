@@ -28,12 +28,11 @@
   (hunchentoot:stop *server*))
 
 
-(add-blog *server* 'my-blog)
-(add-index *server* 'my-index)
-(add-content *server* 'my-content)
+(new-blog *server* 'my-blog)
+(new-index *server* 'my-index)
+(new-content *server* 'my-content)
 
-(easy-image *server* "blog-content/images/rss.svg")
-(easy-image *server* "blog-content/images/rss.png")
+(easy-image *server* "blog-content/images/rss.png" :rss-png)
 
 (easy-blog-entry (*server* my-entry 1 ("general" "test") "A story to tell"
                   (:month "June" :day 23 :hour 14 :minute 32))
@@ -59,5 +58,29 @@
         (:h4 "defgeneric more like defmagic!")
         (:p "The power and flexibility of Common Lisp's defgeneric form cannot be overstated.")))
 
+(easy-blog-entry (*server* my-entry 5 ("general" "programming" "common lisp" "bloggy")
+                  "Demonstrating images and code in CL-BLOGGY"
+                  (:month "July" :day 1)
+                  :subtitle "How-to insert images and code into CL-BLOGGY posts."
+                  :description "A quick demonstration of images and code.")
+  (:p "To insert an image into cl-bloggy simply use an (:img ) like this:")
+  (:img :src (url (find-content entry :rss-png))
+        :width "50")
+  (:br)
+  (:pre
+   (:code 
+    "(:img :src (url (find-content entry :rss-png))
+                :width \"50\")"))
+  (:p "How did I enter that code?? Like this:")
+  (:br)
+  (:pre
+   (:code (%5-code-block)))
+  (:p "Unfortunately you have to drop the second line to the same column as the first for it to format correctly."))
+
+(defun %5-code-block ()
+  "(:pre 
+   (:code 
+      (:img :src (url (find-content entry :rss-png))
+            :width \"50\")))")
 
 

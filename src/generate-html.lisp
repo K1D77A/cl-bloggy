@@ -97,9 +97,16 @@ for your own subclasses the same goes for the three methods it calls."))
             (dolist (entry (entries blog))
               (:div :class "index-entry"
                     (:a :href (process-uri entry :encode)
-                        (format nil "Title: ~A Date: ~A"
-                                (funcall title index)
-                                (format-timestamp nil (date entry) :site)))))))))
+                        (:h2 :class "index-title"
+                             (funcall (title entry) entry))
+                        (:h4 :class "index-tags"
+                             (dolist (name (category-names (category entry)))
+                               (:span name " ")))
+                        (:h3 :class "index-date"
+                             (format-timestamp nil (date entry) :site))
+                        (:h4 :class "index-description"
+                             (when (description entry)
+                               (funcall (description entry) entry))))))))))
 
 (defmethod html-body ((blog blog))
   (with-accessors ((title title)
@@ -114,9 +121,8 @@ for your own subclasses the same goes for the three methods it calls."))
                   (:a :class "rss-link" :href (format nil "~A/rss.xml"
                                                       (url blog))
                       (:img :class "rss-icon"
-                            :src (format nil "~A/images/rss.png" (url content)))))
+                            :src (url (find-content blog :rss-png)))))
             (:h2 :class "blog-description description" (funcall description blog)))
-      
       (:div :class "entries"
             (dolist (blog (sort entries #'> :key #'order))
               (:div :class "entry"
@@ -138,58 +144,4 @@ for your own subclasses the same goes for the three methods it calls."))
 
 (defmethod html-footer (page)
   nil)
-
-(defgeneric generate-rss (stream object)
-  (:documentation "Converts object into RSS using xml-emitter."))
-
-(defmethod generate-rss :around (stream object)  
-  (call-next-method))
-
-(defmethod generate-rss (stream (category category))
-  (let ((names (category-names category)))
-    (format nil "~{~:(~A~)~^ ~}"
-            (mapcar (lambda (name)
-                      (if (find #\Space name)
-                          (format nil "'~A'" name)
-                          name))
-                    names))))
-
-(defmethod generate-rss (stream (blog blog))
-  (with-accessors ((domain domain)
-                   (url url)
-                   (title title)
-                   (description description)
-                   (entries entries)
-                   (language language))
-      blog
-    (xml-emitter:rss-channel-header
-     (funcall title blog) (format nil "~A~A" domain url)
-     :description
-     (funcall description blog) :language language)
-    (mapc (lambda (entry)
-            (generate-rss stream entry))
-          entries)))
-
-(defmethod generate-rss (stream (entry entry))
-  (with-accessors ((blog blog)
-                   (title title)
-                   (date date)
-                   (content content)
-                   (category category)
-                   (description description))
-      entry
-    (xml-emitter:rss-item
-     (funcall title entry)
-     :link (format nil "~A~A" (domain blog)
-                   (process-uri entry :encode))
-     :category (generate-rss stream category)
-     :pubdate (format-timestamp stream date :rss)
-     :author (funcall (author blog) blog)
-     :description
-     (let* ((my-stream (make-string-output-stream))
-            (*standard-output* my-stream))
-       (when description
-         (funcall description entry))
-       (get-output-stream-string my-stream)))))
-
 

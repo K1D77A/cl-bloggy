@@ -161,7 +161,12 @@
     :initform "/blog/content")
    (blog
     :reader blog
-    :initarg :blog)))
+    :initarg :blog)
+   (content
+    :accessor content
+    :initarg :content
+    :initform ()
+    :type list)))
 
 (defclass index (blog)
   ((blog

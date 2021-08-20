@@ -35,9 +35,15 @@
     (".http-code"
      :color "var(--fprimary)")
     (".message"
-     :colour "var(--fsecondary)")
+     :color "var(--fsecondary)")
+    (a
+     :color "var(--fsecondary)")
+    ("#home-link"
+     :padding-right 1vw)
     (p
      :font-size "var(--fsize)")
+    (pre
+     :border-color "var(--fsecondary)")
     (html
      :background-color "var(--background)"
      :padding 5vw
@@ -70,7 +76,19 @@
      :padding-left 7px)))
 
 (defmethod page-css append ((page index))
-  nil)
+  `((".index-entry"
+     :padding-left 10px
+     :margin-bottom 10px)
+    (".index-title"
+     :margin-bottom 3px)
+    (".index-date"
+     :margin-left 5px)
+    (".index-tags")
+    (".index-entry:hover"
+     :border-color "var(--bordercolour)"
+     :border-left-style solid
+     :border-left-width 3px
+     :padding-left 7px)))
 
 (defmethod page-css append ((c display-condition))
   nil)

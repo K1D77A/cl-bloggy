@@ -8,8 +8,33 @@
   (:documentation "used to make the generation of HTML customizable."))
 
 (define-condition bloggy-condition (error)
-  ()
-  (:documentation "Top level condition for cl-bloggy."))
+  ((message
+    :reader message
+    :initarg :message
+    :initform ""
+    :documentation "An optional message"))
+  (:documentation "Top level condition for cl-bloggy.")
+  (:report (lambda (obj stream) (display-condition stream obj :internal))))
+
+(define-condition missing-required-feature (bloggy-condition)
+  ((feature
+    :accessor feature
+    :initarg :feature
+    :documentation "The required feature that is missing.")
+   (instructions
+    :accessor instructions
+    :initarg :instructions
+    :type string
+    :documentation "A string telling the user how to fix the problem"))
+  (:documentation "Signalled when trying to use a function that needs a feature, 
+for example you try to use easy-image but havent called (add-blog ...)."))
+
+(define-condition unknown-content (bloggy-condition)
+  ((content
+    :accessor content
+    :initarg :content
+    :documentation "The content you looked for. A keyword."))
+  (:documentation "Signalled when content is missing."))
 
 (define-condition request-condition (bloggy-condition)
   ((http-code
@@ -20,12 +45,7 @@
    (blog
     :reader blog
     :initarg :blog
-    :documentation "the blog")
-   (message
-    :reader message
-    :initarg :message
-    :initform ""
-    :documentation "An optional message"))
+    :documentation "the blog"))
   (:documentation "All conditions that are related to user requests.")
   (:report
    (lambda (obj stream) (display-condition stream obj :internal))))
@@ -101,3 +121,18 @@ or main but is missing blog/main."))
                               (way (eql :internal)) &rest args)
   (declare (ignore args))
   (format nil "CATEGORIES: ~{~A~^, ~}" (category condition)))
+
+(defmethod display-condition (stream (condition missing-required-feature)
+                              (way (eql :internal)) &rest args)
+  (declare (ignore args))
+  (format stream "You are missing the feature ~A.~%Follow: ~A."
+          (feature condition)
+          (instructions condition)))
+
+(defmethod display-condition (stream (condition unknown-content)
+                              (way (eql :internal)) &rest args)
+  (declare (ignore args))
+  (format stream "Couldn't find the content under key: ~A.~% MESSAGE ~A"
+          (content condition)
+          (message condition)))
+
