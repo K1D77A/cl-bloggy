@@ -36,5 +36,9 @@ I need to rewrite this, things have drastically changed since v2.
 
 ## Screenshot
 
-![Screenshot](https://imgur.com/wcUMrdt.png "Default theme screenshot")
+### Main page 
+![Screenshot](https://imgur.com/HiE70A3.png "main")
 
+### Index page 
+
+![Screenshot](https://imgur.com/3yA2jwi.png "index")
