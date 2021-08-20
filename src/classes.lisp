@@ -80,6 +80,15 @@
     :initarg :blog
     :type blog)))
 
+(defmethod print-object ((ob entry) stream)
+  (print-unreadable-object (ob stream) :type t
+    (with-accessors ((category category)
+                     (title title)
+                     (sym sym))
+        ob
+      (format stream "~S. \"~A\" in category ~A"
+              sym (funcall title ob) (name category)))))
+
 (defclass blog ()
   ((entries
     :accessor entries
@@ -134,6 +143,21 @@
     :initarg :url
     :initform *blog-root-directory*)))
 
+(defmethod print-object ((ob blog) stream)
+  (print-unreadable-object (ob stream) :type t
+    (with-accessors ((entries entries)
+                     (description description)
+                     (url url)
+                     (domain domain)
+                     (title title))
+        ob
+      (format stream "~A @ ~A~A~%Number of entries: ~D. Description: ~A."
+              (funcall title ob)
+              domain
+              url
+              (length entries)
+              (funcall description ob)))))
+
 (defclass category ()
   ((name
     :accessor name
@@ -152,7 +176,16 @@
 
 (defmethod print-object ((ob category) stream)
   (print-unreadable-object (ob stream) :type t
-    (format stream "Name: ~A" (name ob))))
+    (with-accessors ((name name)
+                     (parent parent)
+                     (children children))
+        ob
+      (format stream "Name: ~A. Parent: ~A. Children count: ~D."
+              name 
+              (if parent 
+                  (name parent)
+                  "NA")
+              (length children)))))
 
 (defclass content ()
   ((url
@@ -173,6 +206,12 @@
     :initarg :blog)
    (url
     :initform *blog-index-directory*)))
+
+(defmethod print-object ((ob index) stream)
+  (print-unreadable-object (ob stream) :type t
+    (with-accessors ((url url))
+        ob
+      (format stream "Index URL: ~A" url))))
 
 (defun make-blog (main-title)
   (make-instance 'blog :title main-title))
