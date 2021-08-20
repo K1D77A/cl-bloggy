@@ -127,6 +127,12 @@
 
 
    ;;;;generate-css.lisp
+   ;;;global vars
+   #:*colourone*
+   #:*colourtwo*
+   #:*colourthree*
+   #:*colourfour*
+   
    ;;;only one generic to export
    ;;please note that page-css is using the append method combination.
    #:page-css

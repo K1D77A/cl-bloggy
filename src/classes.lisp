@@ -46,6 +46,11 @@
     :initarg :date 
     :type local-time:timestamp
     :documentation "The date")
+   (sym
+    :reader sym
+    :initarg :sym
+    :type keyword
+    :documentation "A keyword used to reference this entry.")
    (title
     :accessor title
     :initarg :title
@@ -213,19 +218,20 @@
       blog
     (setf entries
           (delete-if (lambda (ent)
-                       (or (string-equal (id ent) (id entry))))
+                       (eq (sym ent) (sym entry)))
                      entries))
     (push entry entries)
     (setf entries
           (sort entries #'local-time:timestamp>= :key #'date))))
 
-(defun new-blog-entry (blog blog-class title category date content
+(defun new-blog-entry (blog blog-class title sym category date content
                        &key (subtitle nil)
                          (description nil))
   (check-type content function)
   (let ((entry (make-instance blog-class 
                               :category category
                               :date date
+                              :sym sym
                               :subtitle
                               (if (stringp subtitle)
                                   (lambda (e) (declare (ignore e))

@@ -1,7 +1,15 @@
 (in-package #:cl-bloggy)
 
 (defgeneric handle-unknown-uri (acceptor request uri method)
-  (:documentation "Attempts to handle a request to an unknown URI."))
+  (:documentation "Attempts to handle a request to an unknown URI.
+Tries to determine the type of request, which are subclasses of 'special-request. 
+Decodes the uri, checks it is valid and then creates the correct subclass. 
+All conditions that are a subclass of 'request-condition
+ are caught by :around and the conditions 
+are passed to display-condition with the :html key. 
+If a condition is a subclass of 'error a new condition is created and that is passed 
+to display-condition with the :html key. 
+If all goes well process-special-request is evaluated with the generated request."))
 
 (defmethod handle-unknown-uri :around (acceptor request uri method)
   (handler-case
@@ -19,7 +27,8 @@
                          :html))))
 
 (defun %validate-url (uri-list blog)
-  ;;(printv:printv  
+  "Attemps to validate the uri which has been split in URI-LIST by comparing it with 
+the url listed for (url BLOG). If it is not then signals 'malformed-url."
   (let* ((split-url (str:split "/" (url blog) :omit-nulls t))
          (uri-len (length split-url)))
     (unless (and (<= uri-len (length uri-list))
@@ -47,7 +56,9 @@
          (change-class special (determine-request-type special)))))))
 
 (defgeneric determine-request-type (special)
-  (:documentation "Given a string determines the special request type"))
+  (:documentation "Given an instance of the special-request class (not subclasses)
+attempts to determine which subclass it should change-class that instance into. 
+Can possibly signal 'rss%bad-categories, 'missing-categories, 'missing-content"))
 
 (defmethod determine-request-type ((special special-request))
   (let ((end (first (last (split-uri special)))))
@@ -95,14 +106,8 @@
         
 
 (defgeneric process-special-request (special-request)
-  (:documentation "Properly handles the special request type and serves the content 
+  (:documentation "Properly handles the subclass of special-request and serves the content 
 expected."))
-
-(defmethod process-special-request :around (request)
-  (call-next-method))
-
-(defmethod process-special-request (request)
-  "unknown")
 
 (defmethod process-special-request ((request rss-request))
   (with-accessors ((blog blog))
@@ -115,6 +120,8 @@ expected."))
       (get-output-stream-string stream))))
 
 (defmethod process-special-request ((request category-request))
+  "Generate the HTML for content within the categories discovered in the request url.
+Can signal 'missing-categories and 'missing-content."
   (with-accessors ((split-uri split-uri)
                    (acceptor acceptor)
                    (category category)
@@ -143,6 +150,7 @@ expected."))
                                       :message "No content at URL"))))))
 
 (defmethod process-special-request ((request rss-category-request))
+  "Attempts to generate an RSS feed for the category in request."
   (with-accessors ((acceptor acceptor)
                    (category category))
       request

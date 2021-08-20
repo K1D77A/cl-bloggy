@@ -34,17 +34,18 @@
 
 (easy-image *server* "blog-content/images/rss.png" :rss-png)
 
-(easy-blog-entry (*server* my-entry  ("general" "test") "A story to tell"
+(easy-blog-entry (*server* my-entry  ("general" "test") "A story to tell" :test1
                   (:month "June" :day 23 :hour 14 :minute 32))
   (:div :class "elp"
         (:p "once upon a time in a land far away")))
 
 (easy-blog-entry (*server* my-entry  ("general" "gaming" "FFXIV") "Fun on FFXIV"
+                  :test2
                   (:month "June" :day 24))
   (:div :class "elp"
         (:p "Another player started complaining at me because I called myself retarded. To explain I repeatedly hit the wrong button casting a ill-applicable spell causing the tank to die and as a consequence we all died.. anyway another player became quite upset after I called myself retarded... eventually they quit because we weren't sensitive enough.")))
 
-(easy-blog-entry (*server* my-entry  ("general") "I just don't understand."
+(easy-blog-entry (*server* my-entry  ("general") "I just don't understand." :test3
                   (:month "June" :day 26))
   (:div :class "elp"
         (dolist (item (lorem-ipsum:paragraphs 5))
@@ -52,6 +53,7 @@
 
 (easy-blog-entry (*server* my-entry  ("general" "programming" "common lisp" "generics")
                   "Creating elegant and extensible programs using defgeneric"
+                  :test4
                   (:month "June" :day 30)
                   :subtitle "My love for Generic programming!")
   (:div :class "elp"
@@ -60,6 +62,7 @@
 
 (easy-blog-entry (*server* my-entry  ("general" "programming" "common lisp" "bloggy")
                   "Demonstrating images and code in CL-BLOGGY"
+                  :test5
                   (:month "July" :day 1)
                   :subtitle "How-to insert images and code into CL-BLOGGY posts."
                   :description "A quick demonstration of images and code.")

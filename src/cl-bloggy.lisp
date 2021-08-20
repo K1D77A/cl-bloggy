@@ -43,9 +43,11 @@ accumulator."
                                  (name cat))))
 
 (defmethod all-children ((category category))
+  "Returns all of the children for CATEGORY."
   (%recurse-categories-children category (lambda (x) x)))
 
 (defun entries-in-category (category blog)
+  "Returns all of the entries that are associated with CATEGORY within BLOG."
   (let ((categories (all-children category)))
     (loop :for entry :in (entries blog)
           :when (some (lambda (cat)
@@ -53,24 +55,40 @@ accumulator."
                       categories)
             :collect entry)))
 
-(defmacro easy-blog-entry ((acceptor blog-class categories title date
+(defmacro easy-blog-entry ((acceptor entry-class categories title sym date
                             &key (subtitle nil)
                               (description nil)                            
                               (let-bindings-to-override-global-vars nil)) &body body)
-  "Takes BLOG-CLASS (a subclass of 'blog-entry' or an instance of blog-entry) 
-and creates a new page at the url '*blog-root-directory*/CATEGORY/TITLE'.
-You can add this to any arbitrary running instance of hunchentoot as long as it was
-initiated using a subclass of the acceptor bloggy-acceptor. You can use the 
-variable 'let-bindings-to-override-global-vars' to modify any global variable 
-used in the render pipeline however I recommend you simply create subclass and
-specialize methods on that subclass instead. BODY must be valid spinneret code, it
-is an implicit (spinneret:with-html ,@body ) so you can enter any arbitrary HTML
-using spinneret, use wisely."
+  "
+ACCEPTOR - The acceptor you want to add this entry to, ie your instance of 'bloggy-acceptor.
+ENTRY-CLASS - The class you want your blog entry to be, normally this would be your 
+own subclass of 'entry, this is used to determine the HTML and CSS that is generated and 
+allows you to maximize customizability.
+CATEGORIES - This is a list of categories like ('general' 'programming'), a category object
+is searched for and if one cannot be found then one is generated for later. 
+Categories are found via that list, so a category is the product of its parents, and 
+their parents parents etc, this means that ('general' 'programming' 'lisp' 'common lisp')
+and ('general' 'programming' 'common lisp') do not resolve to the same category, however
+they would both be children of the category 'programming'.
+TITLE - The title for the entry.
+SYM - A keyword used to reference this blog within CL.
+DATE - Is a list that is passed to the function 'new-date-timestamp' this accepts 
+keyword arguments that would be used with local-time:encode-timestamp in order to 
+generate a timestamp for that blog entry. This determines the order they are displayed in 
+both the index and the main page.
+SUBTITLE - This is an optional subtitle.
+DESCRIPTION - This is an option description. In the case this is provided then the RSS
+feed will display this instead of the result of evaluating the function in content. 
+The description is also displayed on the index page.
+LET-BINDINGS-TO-OVERRIDE-GLOBAL-VARS - This gives you an opportunity to per entry 
+lexically bind any of the global variables. Although I have not tested this so idk if
+it works.
+"
   (alexandria:with-gensyms (new-entry category timestamp)
     `(let* ((,category (find-category ',categories (blog ,acceptor)))
             (,timestamp (apply #'new-date-timestamp ',date))
             (,new-entry
-              (new-blog-entry (blog ,acceptor) ',blog-class ,title
+              (new-blog-entry (blog ,acceptor) ',entry-class ,title ,sym
                               ,category ,timestamp
                               (lambda (entry) (declare (ignorable entry))
                                 (spinneret:with-html ,@body))
@@ -119,6 +137,7 @@ the final category would have to be new. So categories are found by their parent
                 (find-category list blog nil))))))))
 
 (defun make-children (current names)
+  "Generates the children for the category CURRENT with the names listed in NAMES."
   (labels ((rec (parent childs)
              (with-accessors ((children children))
                  parent
@@ -134,7 +153,6 @@ the final category would have to be new. So categories are found by their parent
     current))
 
 (defun find-categories (names blog &optional (cats nil))
-  "name is a list"
   (with-accessors ((categories categories))
       blog
     (loop :for (name . children) :on names
@@ -148,7 +166,10 @@ the final category would have to be new. So categories are found by their parent
           :finally (return cats))))
 
 (defun new-blog (acceptor blog-class)
-  "Initializes the main blog page at PATH"
+  "Initializes the main blog within ACCEPTOR. This must be called before both 
+new-index and new-content. BLOG-CLASS should ideally be a subclass of blog. 
+Uses (url (make-instance BLOG-CLASS)) to determine the url to put the main page.
+Defaults to /blog/main."
   (unless (slot-boundp acceptor 'blog)
     (setf (blog acceptor)
           (make-instance blog-class)))
@@ -160,7 +181,10 @@ the final category would have to be new. So categories are found by their parent
    acceptor))
 
 (defun new-index (acceptor index-class)
-  "Initializes the main blog index at PATH"
+  "Initializes the main index page within (blog acceptor) using the class INDEX-CLASS.
+Ideally INDEX-CLASS will be your subclass of 'index. Uses (url (make-instance INDEX-CLASS))
+to determine where to put the route for the index page.
+Defaults to /blog/index"
   (let ((index (make-instance index-class :blog (blog acceptor))))
     (setf (index (blog acceptor)) index)
     (add-route
@@ -170,8 +194,13 @@ the final category would have to be new. So categories are found by their parent
      acceptor)))
 
 (defun new-content (acceptor content-class)
+  "Initialize the main content repo within (blog acceptor) using the class CONTENT-CLASS.
+Ideally CONTENT-CLASS will be a subclass of content."
   (let ((content (make-instance content-class :blog (blog acceptor))))
     (setf (content (blog acceptor)) content)))
+
+(defgeneric delete-entry (acceptor entry)
+  (:documentation "Deletes a blog entry from (blog acceptor)"))
 
 (defmethod delete-entry ((acceptor bloggy-acceptor) (entry entry))
   (with-accessors ((blog blog)
@@ -183,12 +212,6 @@ the final category would have to be new. So categories are found by their parent
             (remove entry (entries blog) :test #'eq)))))
 
 (defmethod delete-entry ((acceptor bloggy-acceptor) (entry null)))
-
-(defmethod delete-entry ((acceptor bloggy-acceptor) (entry number))
-  (let* ((blog (blog acceptor))
-         (entries (entries blog)))
-    (delete-entry acceptor (find entry entries :key #'order :test #'=))))
-
 
 (defgeneric format-timestamp (stream timestamp way)
   (:documentation "formats timestamp into stream by WAY."))
@@ -206,8 +229,8 @@ the final category would have to be new. So categories are found by their parent
 (defgeneric find-entry (check blog)
   (:documentation "Uses CHECK to try and find entry in BLOG."))
 
-(defmethod find-entry ((n fixnum) blog)
-  (find n (entries blog) :key #'order :test #'=))
+(defmethod find-entry ((check symbol) blog)
+  (find check (entries blog) :key #'sym :test #'eq))
 
 (defmethod delete-category ((category list) blog)
   (delete-category (find-category category blog nil) blog))

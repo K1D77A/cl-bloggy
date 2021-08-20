@@ -1,11 +1,18 @@
 (in-package #:cl-bloggy)
 
-
-
+(defparameter *colourone* "#d5d7d6");pinky
+(defparameter *colourtwo* "#00314f");dark blue
+(defparameter *colourthree* "#736a7b");purply grey
+(defparameter *colourfour* "#5e8930");green
 
 (defgeneric page-css (page)
   (:method-combination append :most-specific-last)
-  (:documentation "Generates CSS for page"))
+  (:documentation "Generates CSS for page. Uses append method so that each subclass of 
+page has its CSS appended after. Works with most-specific-last meaning that the 
+methods are applied like so page -> entry -> my-entry, assuming you have subclassed 
+something and then created your own version of page-css for it. This is ideal for 
+CSS as CSS cascades. If you wanted to override the default colours you could create a 
+new :root and override the values of :--colourone etc."))
 
 (defmethod page-css :around (page)
   (spinneret:with-html
@@ -13,11 +20,12 @@
             (apply #'lass:compile-and-write (call-next-method)))))
 
 (defmethod page-css append (page)
+  "Provide the default CSS for all objects within cl-bloggy."
   `((":root"
-     :--colourone "#d5d7d6";pinky
-     :--colourtwo "#00314f";dark blue
-     :--colourthree "#736a7b";purply grey
-     :--colourfour "#5e8930";green
+     :--colourone ,*colourone*
+     :--colourtwo ,*colourtwo*
+     :--colourthree ,*colourthree*
+     :--colourfour ,*colourfour*
      :--background "var(--colourone)"
      :--fprimary "var(--colourtwo)"
      :--fsecondary "var(--colourfour)"
@@ -58,6 +66,7 @@
   nil)
 
 (defmethod page-css append ((page blog))
+  "Provide default css for all blogs and subclasses of blog."
   `((".title-box"
      :margin-bottom 5vw)
     (".entry"
@@ -76,6 +85,7 @@
      :padding-left 7px)))
 
 (defmethod page-css append ((page index))
+  "Provide default css for all indexes and subclasses of index."
   `((".index-entry"
      :padding-left 10px
      :margin-bottom 10px)

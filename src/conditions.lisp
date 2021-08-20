@@ -86,7 +86,11 @@ but the categories they provided can't be found."))
 or main but is missing blog/main."))
 
 (defgeneric display-condition (stream condition way &rest args)
-  (:documentation "Displays the condition to the user."))
+  (:documentation "Displays the condition to the user. 
+WAY is a keyword argument, right now there are two :internal and :html, 
+:internal displays the condition as normal, while :html is used for rendering HTML for
+the condition. If you look in src/generate-html.lisp you can see how the 
+request-conditions are formatted for HTML output"))
 
 (defmethod display-condition :around (stream (condition request-condition)
                                       (way (eql :internal)) &rest args)

@@ -1,5 +1,12 @@
 (in-package :cl-bloggy)
 
+
+#||
+This file contains the code for a custom hunchentoot acceptor, a subclass of easy
+acceptor. It doesn't do anything special other than provide a way to add routes outside of
+tbnl:define-easy-handler. The custom route system uses a hash table within the acceptor.
+||#
+
 (defclass bloggy-acceptor (hunchentoot:easy-acceptor)
   ((routes
     :initform (make-hash-table :test #'equal)
@@ -46,8 +53,10 @@ hunchentoot"
       (declare (ignore handler))
       (remhash url routes))))
 
-
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor bloggy-acceptor) request)
+  "Check the URI in the request against the routes stored within (routes acceptor), 
+if the route is found then serves the content, otherwise executes 
+handle-unknown-uri to try and process the request."
   (let* ((method (hunchentoot:request-method* request))
          (uri (hunchentoot:request-uri* request)))
     (print (process-uri uri :decode))

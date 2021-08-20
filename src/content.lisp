@@ -6,20 +6,26 @@
     :initarg :path)
    (mime
     :accessor mime
-    :initarg :mime)
+    :initarg :mime
+    :type string
+    :documentation "The mimetype obtained with tbnl:mime" )
    (acceptor
     :accessor acceptor
     :initarg :acceptor)
    (data
     :accessor data
     :initarg :data
-    :type function)
+    :type function
+    :documentation "A function that when you evaluate returns the byte vector containing
+the content of the content.")
    (name
     :accessor name
     :initarg :name)
    (url
     :accessor url
-    :initarg :url)))
+    :initarg :url))
+  (:documentation "Class that is used for storing content within the blog. 
+The content can be retrieved using keywords."))
 
 (defclass image-content (uploaded-content)
   ())
@@ -67,8 +73,10 @@
 (defmethod find-content ((index index) key)
   (find-content (blog index) key))
 
-
 (defun easy-image (acceptor image-path key)
+  "Given an ACCEPTOR (where your blog is stored), a path to an image (string) 
+and a KEY (keyword), creates a new instance of 'image-content and stores it within 
+the content object within your blog."
   (let* ((image (alexandria:read-file-into-byte-vector image-path))
          (mime (tbnl:mime-type image-path))
          (uploader (make-instance 'image-content

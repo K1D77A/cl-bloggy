@@ -3,10 +3,10 @@
 (defgeneric generate-rss (stream object)
   (:documentation "Converts object into RSS using xml-emitter."))
 
-(defmethod generate-rss :around (stream object)  
-  (call-next-method))
-
 (defmethod generate-rss (stream (category category))
+  "Converts the category into a string for use within the generate-rss, however
+I basically have just guessed that you should wrap categories that contain spaces with 
+single ' marks. This may change."
   (let ((names (category-names category)))
     (format nil "~{~:(~A~)~^ ~}"
             (mapcar (lambda (name)
@@ -16,6 +16,7 @@
                     names))))
 
 (defmethod generate-rss (stream (blog blog))
+  "Just applies the rss-channel-header and then executes generate-rss on all of the entries."
   (with-accessors ((domain domain)
                    (url url)
                    (title title)
@@ -32,6 +33,9 @@
           entries)))
 
 (defmethod generate-rss (stream (entry entry))
+  "Generates the rss for an ENTRY object, fills in the default values and in the case that
+description is non nil then evaluates that function, if it is nil then evaluates 
+the content function instead."
   (with-accessors ((blog blog)
                    (title title)
                    (date date)

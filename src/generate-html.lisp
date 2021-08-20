@@ -40,6 +40,10 @@ for your own subclasses the same goes for the three methods it calls."))
 (defmethod to-html (page)
   nil)
 
+(defgeneric html-headers (page)
+  (:documentation "Applies the default css sheets listed in *default-css* to the header
+and then evaluates call-next-method."))
+
 (defmethod html-headers :around (page)
   (spinneret:with-html
     (dolist (css *default-css*)
@@ -59,7 +63,10 @@ for your own subclasses the same goes for the three methods it calls."))
     (:title (title blog))))
 
 (defgeneric html-body (page)
-  (:documentation "Displays PAGE the correct way."))
+  (:documentation "Displays PAGE the correct way. If you wanted to change the layout
+of a certain page, you would create a new version of html-body for your subclass of 
+that page. In that case it would be best to simply copy and paste the code for the 
+superclass and then play with it that way, you dont want to end up breaking functionality."))
 
 (defmethod html-body ((entry entry))
   (with-accessors ((id id)
@@ -136,10 +143,14 @@ for your own subclasses the same goes for the three methods it calls."))
       (:h1 :class "http-code" http-code)
       (:h3 :class "message" message))))
 
+(defgeneric html-footer (page)
+  (:documentation "Appends a footer to PAGE."))
+
 (defmethod html-footer :around (page)
   (spinneret:with-html
     (:div :id "footer"
           (call-next-method))))
+
 
 (defmethod html-footer (page)
   nil)
