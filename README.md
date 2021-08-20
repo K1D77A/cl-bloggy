@@ -6,7 +6,14 @@ Hunchentoot.
 It uses its own custom handler to add routes but but you can still use hunchentoots
 define-easy-handler.
 
-# README needs a rewrite.. 
+This is designed to be used with Sly/SLIME's remote connection ability, when you want to 
+add a new entry you would open your ssh tunnel, connect with sly/slime and then 
+compile your new entry straight into the source written on your own machine. 
+Ofcourse you could use a makefile so that you can just deploy the image anywhere with 
+all of your previous posts ready to go. 
+
+
+# README needs a rewrite.
 if you want to try it, clone the repo to quicklisp/local-projects, register local projects 
 ```lisp 
 (ql:quickload :cl-bloggy)
@@ -14,25 +21,8 @@ if you want to try it, clone the repo to quicklisp/local-projects, register loca
 <compile the contents of src/test-server.lisp using sly/slime>
 (start)
 ```
-Navigate to `http://127.0.0.1:4203/blog/main` if the categories haven't loaded properly 
-then just recompile each easy-blog-entry individually with C-c C-c. 
+Navigate to `http://127.0.0.1:4203/blog/main` 
 
-## Getting started
-
-To get started you need to start up hunchentoot with a new acceptor called 'bloggy-
-acceptor'
-
-```lisp
-
-(defparameter *server* (make-instance 'bloggy-acceptor
-                                      :blog (make-instance 'blog
-                                                           :title "Main")
-                                      :document-root "./"
-                                      :port 4203 :name 'main))
-                                      
-```
-
-I need to rewrite this, things have drastically changed since v2.
 
 ## Screenshot
 
