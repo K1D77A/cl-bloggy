@@ -37,8 +37,12 @@ I need to rewrite this, things have drastically changed since v2.
 ## Screenshot
 
 ### Main page 
-![Screenshot](https://imgur.com/HiE70A3.png "main")
+![Screenshot](https://imgur.com/ydX0PrT.png "main")
 
 ### Index page 
 
-![Screenshot](https://imgur.com/3yA2jwi.png "index")
+![Screenshot](https://imgur.com/6MUih5Z.png "index")
+
+### Single entry
+
+![Screenshot](https://imgur.com/0FRTEoZ.png "entry")
