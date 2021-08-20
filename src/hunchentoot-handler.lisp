@@ -59,7 +59,6 @@ if the route is found then serves the content, otherwise executes
 handle-unknown-uri to try and process the request."
   (let* ((method (hunchentoot:request-method* request))
          (uri (hunchentoot:request-uri* request)))
-    (print (process-uri uri :decode))
     (let ((route (gethash uri (routes acceptor))))
       (if route 
           (destructuring-bind (method2 url handler)
