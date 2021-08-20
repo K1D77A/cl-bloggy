@@ -22,3 +22,7 @@ acceptor'
 ```
 
 I need to rewrite this, things have drastically changed since v2.
+
+## Screenshot
+
+![Screenshot](https://imgur.com/wcUMrdt.png "Default theme screenshot")
