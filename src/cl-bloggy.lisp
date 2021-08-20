@@ -131,7 +131,8 @@ the final category would have to be new. So categories are found by their parent
                      (if found? 
                          (check-for-kids found? (rest names))
                          (when createp
-                           (make-children category names)))))))
+                           (make-children category names)
+                           (check-for-kids category names)))))))
       (let* ((current (first list))
              (remainder (rest list))
              (found? (find current categories :key #'name :test #'string-equal)))

@@ -150,6 +150,10 @@
     :initarg :parent
     :initform nil)))
 
+(defmethod print-object ((ob category) stream)
+  (print-unreadable-object (ob stream) :type t
+    (format stream "Name: ~A" (name ob))))
+
 (defclass content ()
   ((url
     :reader url
