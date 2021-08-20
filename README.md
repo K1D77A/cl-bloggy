@@ -6,6 +6,17 @@ Hunchentoot.
 It uses its own custom handler to add routes but but you can still use hunchentoots
 define-easy-handler.
 
+# README needs a rewrite.. 
+if you want to try it, clone the repo to quicklisp/local-projects, register local projects 
+```lisp 
+(ql:quickload :cl-bloggy)
+(in-package :cl-bloggy)
+<compile the contents of src/test-server.lisp using sly/slime>
+(start)
+```
+Navigate to `http://127.0.0.1:4203/blog/main` if the categories haven't loaded properly 
+then just recompile them individually with C-c C-c. 
+
 ## Getting started
 
 To get started you need to start up hunchentoot with a new acceptor called 'bloggy-
@@ -26,3 +37,4 @@ I need to rewrite this, things have drastically changed since v2.
 ## Screenshot
 
 ![Screenshot](https://imgur.com/wcUMrdt.png "Default theme screenshot")
+
