@@ -38,18 +38,21 @@
                   (:month "June" :day 23 :hour 14 :minute 32))
   (:div :class "elp"
         (:p "once upon a time in a land far away")))
+(entry-test1)
 
 (easy-blog-entry (*server* my-entry  ("general" "gaming" "FFXIV") "Fun on FFXIV"
                   :test2
                   (:month "June" :day 24))
   (:div :class "elp"
         (:p "oooooooooooooooooooooooooooooooooof.")))
+(entry-test2)
 
 (easy-blog-entry (*server* my-entry  ("general") "I just don't understand." :test3
                   (:month "June" :day 26 :minute 1))
   (:div :class "elp"
         (dolist (item (lorem-ipsum:paragraphs 5))
           (:p item))))
+(entry-test3)
 
 (easy-blog-entry (*server* my-entry  ("general" "programming" "common lisp" "generics")
                   "Creating elegant and extensible programs using defgeneric"
@@ -59,6 +62,7 @@
   (:div :class "elp"
         (:h4 "defgeneric more like defmagic!")
         (:p "The power and flexibility of Common Lisp's defgeneric form cannot be overstated.")))
+(entry-test4)
 
 (easy-blog-entry (*server* my-entry  ("general" "programming" "common lisp" "bloggy")
                   "Demonstrating images and code in CL-BLOGGY"
@@ -79,6 +83,7 @@
   (:pre
    (:code (%5-code-block)))
   (:p "Unfortunately you have to drop the second line to the same column as the first for it to format correctly."))
+(entry-test5)
 
 (defun %5-code-block ()
   "(:pre 

@@ -92,24 +92,25 @@ lexically bind any of the global variables. Although I have not tested this so i
 it works.
 "
   (alexandria:with-gensyms (new-entry category timestamp)
-    `(let* ((,category (find-category ',categories (blog ,acceptor)))
-            (,timestamp (apply #'new-date-timestamp ',date))
-            (,new-entry
-              (new-blog-entry (blog ,acceptor) ',entry-class ,title ,sym
-                              ,category ,timestamp
-                              (lambda (entry) (declare (ignorable entry))
-                                (spinneret:with-html ,@body))
-                              :subtitle ,subtitle
-                              :description ,description)))
-       (add-route
-        (make-route :GET
-                    (process-uri ,new-entry :encode)
-                    (lambda ()
-                      (if ',let-bindings-to-override-global-vars
-                          (let ,let-bindings-to-override-global-vars
-                            (to-html ,new-entry))
-                          (to-html ,new-entry))))
-        ,acceptor))))
+    `(defun ,(intern (string-upcase  (format nil "entry-~A" sym))) ()
+       (let* ((,category (find-category ',categories (blog ,acceptor)))
+              (,timestamp (apply #'new-date-timestamp ',date))
+              (,new-entry
+                (new-blog-entry (blog ,acceptor) ',entry-class ,title ,sym
+                                ,category ,timestamp
+                                (lambda (entry) (declare (ignorable entry))
+                                  (spinneret:with-html ,@body))
+                                :subtitle ,subtitle
+                                :description ,description)))
+         (add-route
+          (make-route :GET
+                      (process-uri ,new-entry :encode)
+                      (lambda ()
+                        (if ',let-bindings-to-override-global-vars
+                            (let ,let-bindings-to-override-global-vars
+                              (to-html ,new-entry))
+                            (to-html ,new-entry))))
+          ,acceptor)))))
 
 (defun find-category (list blog &optional (createp t))
   "Attempts to find the category that is in list.
