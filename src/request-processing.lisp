@@ -134,12 +134,13 @@ Can signal 'missing-categories and 'missing-content."
             (to-html (make-instance (class-of (blog acceptor))
                                     :categories categories
                                     :content (content blog)
+                                    :acceptor acceptor
                                     :index (index blog)
                                     :title (lambda (blog)
                                              (declare (ignore blog))
                                              (format nil "Category: ~:(~A~)"
                                                      (name category)))
-                                    :url (url blog)
+                                    :url (process-uri blog :category-url category)
                                     :entries entries)))
           (if (char= (aref uri (1- (length uri))) #\/)
               (error 'missing-categories :category split-uri
@@ -164,6 +165,7 @@ Can signal 'missing-categories and 'missing-content."
           (generate-rss stream
                         (make-instance (class-of blog)
                                        :categories categories
+                                       :acceptor acceptor
                                        :title
                                        (lambda (blog)
                                          (declare (ignore blog))

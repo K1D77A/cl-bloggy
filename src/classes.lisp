@@ -138,6 +138,10 @@
     :accessor content
     :initarg :content
     :type content)
+   (acceptor
+    :accessor acceptor
+    :initarg :acceptor
+    :documentation "This is the top level acceptor where the blog object is stored.")
    (url
     :reader url
     :initarg :url

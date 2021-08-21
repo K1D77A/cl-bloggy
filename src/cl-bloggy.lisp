@@ -184,7 +184,7 @@ Uses (url (make-instance BLOG-CLASS)) to determine the url to put the main page.
 Defaults to /blog/main."
   (unless (slot-boundp acceptor 'blog)
     (setf (blog acceptor)
-          (make-instance blog-class)))
+          (make-instance blog-class :acceptor acceptor)))
   (add-route
    (make-route :get (url (make-instance blog-class))
                (gensym)

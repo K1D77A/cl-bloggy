@@ -55,12 +55,41 @@ and then evaluates call-next-method."))
   nil)
 
 (defmethod html-headers ((entry entry))
-  (spinneret:with-html
-    (:title :id "header-title" (title entry))))
+  (with-accessors ((title title)
+                   (description description)
+                   (blog blog))
+      entry
+    (let ((desc
+            (if description
+                (funcall description entry)
+                (funcall (description blog) blog))))
+      (spinneret:with-html
+        (:meta :name "title" :content  (funcall title entry))
+        (:meta :name "description" :content desc)
+        (:meta :property "og:type" :content "website")
+        (:meta :property "og:url"
+               :content (format nil "~A~A" (domain blog) (process-uri entry :encode)))
+        (:meta :property "og:title"
+               :content (funcall title entry))
+        (:meta :property "og:description"
+               :content desc)))))
 
 (defmethod html-headers ((blog blog))
-  (spinneret:with-html
-    (:title (title blog))))
+  (with-accessors ((title title)
+                   (description description)
+                   (url url)
+                   (domain domain))
+      blog
+    (spinneret:with-html
+      (:meta :name "title" :content  (funcall title blog))
+      (:meta :name "description" :content (funcall description blog))
+      (:meta :property "og:type" :content "website")
+      (:meta :property "og:url"
+             :content (format nil "~A~A" domain url))
+      (:meta :property "og:title"
+             :content (funcall title blog))
+      (:meta :property "og:description"
+             :content (funcall description blog)))))
 
 (defgeneric html-body (page)
   (:documentation "Displays PAGE the correct way. If you wanted to change the layout
@@ -129,10 +158,10 @@ superclass and then play with it that way, you dont want to end up breaking func
       blog
     (spinneret:with-html
       (:div :class "title-box"
-            (:a :id "home-link" :href (url blog) "Home")
+            (:a :id "home-link" :href (url (blog (acceptor blog))) "Home")
             (:a :id "index-link" :href (url (index blog)) "Index")
             (:div :class "title-and-icons"
-                  (:h1 :class "blog-title title" (funcall title  blog))
+                  (:h1 :class "blog-title title" (funcall title blog))
                   (:a :class "rss-link" :href (format nil "~A/rss.xml"
                                                       (url blog))
                       (:img :class "rss-icon"
