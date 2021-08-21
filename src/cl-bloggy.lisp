@@ -91,7 +91,7 @@ LET-BINDINGS-TO-OVERRIDE-GLOBAL-VARS - This gives you an opportunity to per entr
 lexically bind any of the global variables. Although I have not tested this so idk if
 it works.
 "
-  (alexandria:with-gensyms (new-entry category timestamp)
+  (alexandria:with-gensyms (new-entry category timestamp url)
     `(defun ,(intern (string-upcase  (format nil "entry-~A" sym))) ()
        (let* ((,category (find-category ',categories (blog ,acceptor)))
               (,timestamp (apply #'new-date-timestamp ',date))
@@ -101,10 +101,13 @@ it works.
                                 (lambda (entry) (declare (ignorable entry))
                                   (spinneret:with-html ,@body))
                                 :subtitle ,subtitle
-                                :description ,description)))
+                                :description ,description))
+              (,url (process-uri ,new-entry :for-route)))
+         (delete-route-by-sym ,sym ,acceptor)
          (add-route
           (make-route :GET
-                      (process-uri ,new-entry :for-route)
+                      ,url
+                      ,sym
                       (lambda ()
                         (if ',let-bindings-to-override-global-vars
                             (let ,let-bindings-to-override-global-vars
@@ -184,6 +187,7 @@ Defaults to /blog/main."
           (make-instance blog-class)))
   (add-route
    (make-route :get (url (make-instance blog-class))
+               (gensym)
                (lambda ()
                  (let ((blog (blog acceptor)))
                    (to-html blog))))
@@ -198,6 +202,7 @@ Defaults to /blog/index"
     (setf (index (blog acceptor)) index)
     (add-route
      (make-route :get (url (make-instance index-class))
+                 (gensym)
                  (lambda ()
                    (to-html index)))
      acceptor)))

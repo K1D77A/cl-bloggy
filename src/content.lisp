@@ -95,6 +95,7 @@ the content object within your blog."
     (add-route
      (make-route :GET
                  (url uploader)
+                 key
                  (lambda ()
                    (with-accessors ((mime mime)
                                     (data data))

@@ -18,19 +18,19 @@ tbnl:define-easy-handler. The custom route system uses a hash table within the a
 (deftype route () `(satisfies routep))
 
 (defun routep (x)
-  (and (= (length x) 3)
-       (destructuring-bind (method route handler)
+  (and (= (length x) 4)
+       (destructuring-bind (method route unique-id handler)
            x
          (and (keywordp method)
               (stringp route)
               (or (functionp handler)
                   (symbolp handler))))))
 
-(defun make-route (method url handler)
+(defun make-route (method url unique-id handler)
   (check-type method keyword)
   (check-type url string)
   (check-type handler (or function symbol))
-  (list method url handler))
+  (list method url unique-id handler))
 
 (defmethod add-route (route (acceptor bloggy-acceptor))
   "Adds a route to your acceptor, the acceptor is what you used to start 
@@ -38,7 +38,7 @@ hunchentoot"
   (check-type route route)
   (with-accessors ((routes routes))
       acceptor
-    (destructuring-bind (method url handler)
+    (destructuring-bind (method url unique-id handler)
         route
       (declare (ignore handler))
       (setf (gethash url routes)
@@ -48,10 +48,19 @@ hunchentoot"
   (check-type route route)
   (with-accessors ((routes routes))
       acceptor
-    (destructuring-bind (method url handler)
+    (destructuring-bind (method url unique-id handler)
         route
       (declare (ignore handler))
       (remhash url routes))))
+
+(defun delete-route-by-sym (symbol acceptor)
+  (maphash (lambda (key val)
+             (destructuring-bind (method url id handler)
+                 val
+               (declare (ignore method url handler))
+               (when (string-equal id symbol)
+                 (remhash key (routes acceptor)))))
+           (routes acceptor)))
 
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor bloggy-acceptor) request)
   "Check the URI in the request against the routes stored within (routes acceptor), 
@@ -61,7 +70,7 @@ handle-unknown-uri to try and process the request."
          (uri (hunchentoot:request-uri* request)))
     (let ((route (gethash (do-urlencode:urldecode uri) (routes acceptor))))
       (if route 
-          (destructuring-bind (method2 url handler)
+          (destructuring-bind (method2 url id handler)
               route
             (declare (ignore url))
             (if (equal method2 method)
