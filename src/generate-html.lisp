@@ -80,7 +80,7 @@ superclass and then play with it that way, you dont want to end up breaking func
 
 
 (defmethod html-body ((entry entry))
-  (with-accessors ((id id)
+  (with-accessors ((sym sym)
                    (title title)
                    (date date)
                    (content content)
@@ -90,7 +90,7 @@ superclass and then play with it that way, you dont want to end up breaking func
       entry
     (spinneret:with-html
       (:div :class "content"
-            (:div :id id
+            (:div :id sym 
                   (:a :href
                       (process-uri entry :encode)
                       (:h2 :class "title" (funcall title entry)))
@@ -139,10 +139,10 @@ superclass and then play with it that way, you dont want to end up breaking func
                             :src (url (find-content blog :rss-png)))))
             (:h2 :class "blog-description description" (funcall description blog)))
       (:div :class "entries"
-            (dolist (blog entries)
+            (dolist (entry entries)
               (:div :class "entry"
-                    :id (id blog)
-                    (html-body blog)))))))
+                    :id (sym entry)
+                    (html-body entry)))))))
 
 (defmethod html-body ((c request-condition))
   (with-accessors ((http-code http-code)

@@ -139,7 +139,7 @@ Can signal 'missing-categories and 'missing-content."
                                              (declare (ignore blog))
                                              (format nil "Category: ~:(~A~)"
                                                      (name category)))
-                                    :url (process-uri blog :category-url category)
+                                    :url (url blog)
                                     :entries entries)))
           (if (char= (aref uri (1- (length uri))) #\/)
               (error 'missing-categories :category split-uri

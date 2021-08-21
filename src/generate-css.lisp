@@ -74,7 +74,8 @@ new :root and override the values of :--colourone etc."))
   `((".title-box"
      :margin-bottom 5vw)
     (".entry"
-     :padding-left 10px)
+     :padding-left 10px
+     :margin-bottom 5vh)
     (".title-and-icons"
      :display flex
      :flex-display row)
