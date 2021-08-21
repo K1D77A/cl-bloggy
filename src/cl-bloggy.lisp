@@ -104,7 +104,7 @@ it works.
                                 :description ,description)))
          (add-route
           (make-route :GET
-                      (process-uri ,new-entry :encode)
+                      (process-uri ,new-entry :for-route)
                       (lambda ()
                         (if ',let-bindings-to-override-global-vars
                             (let ,let-bindings-to-override-global-vars

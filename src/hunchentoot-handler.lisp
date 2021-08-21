@@ -59,7 +59,7 @@ if the route is found then serves the content, otherwise executes
 handle-unknown-uri to try and process the request."
   (let* ((method (hunchentoot:request-method* request))
          (uri (hunchentoot:request-uri* request)))
-    (let ((route (gethash uri (routes acceptor))))
+    (let ((route (gethash (do-urlencode:urldecode uri) (routes acceptor))))
       (if route 
           (destructuring-bind (method2 url handler)
               route
@@ -77,9 +77,3 @@ handle-unknown-uri to try and process the request."
                                        :html)))
                 (call-next-method)))
           (handle-unknown-uri acceptor request uri method)))))
-
-
-
-
-
-

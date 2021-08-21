@@ -19,6 +19,23 @@ found at the correct uri."
                        names)
                (list (do-urlencode:urlencode (funcall title entry))))))))
 
+(defmethod process-uri ((entry entry) (key (eql :for-route)) &rest args)
+  "Default URI encoding for entries, this is so that entries once created can be 
+found at the correct uri. This is a workaround with Nginx, nginx seems to be rewriting URLs
+so best just decode the URI on request and check that way."
+  (declare (ignore args))
+  (with-accessors ((cat category)
+                   (title title))
+      entry
+    (let ((names (category-names cat)))
+      (reduce #'str:concat
+              (append
+               (list (url (blog entry)) "/")
+               (mapcar (lambda (name)
+                         (str:concat name "/"))
+                       names)
+               (list  (funcall title entry)))))))
+
 (defmethod process-uri ((uri string) (key (eql :decode)) &rest args)
   "Decodes the URI string. Used when requests are made to tbnl. Makes use of 
 *max-category-depth* in an attempt to stop DoS attacks which use very large URIs full of
