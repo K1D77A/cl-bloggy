@@ -134,6 +134,7 @@ Can signal 'missing-categories and 'missing-content."
             (to-html (make-instance (class-of (blog acceptor))
                                     :categories categories
                                     :content (content blog)
+                                    :domain (domain blog)
                                     :acceptor acceptor
                                     :index (index blog)
                                     :title (lambda (blog)
@@ -166,6 +167,7 @@ Can signal 'missing-categories and 'missing-content."
                         (make-instance (class-of blog)
                                        :categories categories
                                        :acceptor acceptor
+                                       :domain (domain blog)
                                        :title
                                        (lambda (blog)
                                          (declare (ignore blog))

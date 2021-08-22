@@ -1,8 +1,5 @@
 (in-package :cl-bloggy)
 
-(defclass my-index (index)
-  ())
-
 (defclass my-entry (entry)
   ())
 
@@ -17,6 +14,9 @@
                 (lambda (b) (declare (ignore b)) "My Test blog for random stuff."))
    (author :initform
            (lambda (b) (declare (ignore b)) "K1D77A"))))
+
+(defclass my-index (index my-blog)
+  ())
 
 (defparameter *server* (make-instance 'bloggy-acceptor                                      
                                       :document-root "./blog/"

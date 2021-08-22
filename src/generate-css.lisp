@@ -50,6 +50,10 @@ new :root and override the values of :--colourone etc."))
      :color "var(--colourthree)")
     ("#home-link"
      :margin-right 1vw)
+    (abbr
+     :font-size "var(--fsize)")
+    (summary
+     :font-size "var(--fsize)")
     (p
      :font-size "var(--fsize)")
     (span

@@ -116,7 +116,7 @@
     :type (or function nil))
    (domain
     :accessor domain
-    :initarg domain
+    :initarg :domain
     :type string)
    (description
     :accessor description
