@@ -24,18 +24,21 @@ for your own subclasses the same goes for the three methods it calls."))
        (html-footer e))))))
 
 (defmethod to-html ((entry entry))
-  (spinneret:with-html 
-    (:a :id "home-link" :href (url (blog entry)) "Home")
-    (:a :id "index-link" :href (url (index (blog entry))) "Index")))
+  (spinneret:with-html
+    (:div :class "return-links"
+          (:a :id "home-link" :href (url (blog entry)) "Home")
+          (:a :id "index-link" :href (url (index (blog entry))) "Index"))))
 
 (defmethod to-html ((c request-condition))
   (spinneret:with-html
-    (:a :id "home-link" :href (url (blog c)) "Home")
-    (:a :id "index-link" :href (url (index (blog c))) "Index")))
+    (:div :class "return-links"
+          (:a :id "home-link" :href (url (blog c)) "Home")
+          (:a :id "index-link" :href (url (index (blog c))) "Index"))))
 
 (defmethod to-html ((index index))
   (spinneret:with-html
-    (:a :id "home-link" :href (url (blog index)) "Home")))
+    (:div :class "return-links"
+          (:a :id "home-link" :href (url (blog index)) "Home"))))
 
 (defmethod to-html (page)
   nil)
@@ -99,13 +102,13 @@ superclass and then play with it that way, you dont want to end up breaking func
 
 (defun %format-tags (blog category)
   (spinneret:with-html 
-    (:span "Tags: "
-           (mapc (lambda (tag url)
-                   (:span
-                    (:a :href url
-                        (format nil "~:(~A~)" tag) " ")))
-                 (category-names category)
-                 (category-all-urls category blog)))))
+    (:span "Tags: ")
+    (mapc (lambda (tag url)
+            (:span
+             (:a :href url
+                 (format nil "~:(~A~)" tag) " ")))
+          (category-names category)
+          (category-all-urls category blog))))
 
 
 (defmethod html-body ((entry entry))
@@ -126,10 +129,10 @@ superclass and then play with it that way, you dont want to end up breaking func
                   (:h3 :class "subtitle"
                        (when subtitle (funcall subtitle entry)))
                   (:h4 :class "date" (format-timestamp nil date :site))
-                  (:div :class "tags"
-                        (%format-tags blog category))
                   (:div :id "user-content"
-                        (funcall content entry)))))))
+                        (funcall content entry))
+                  (:div :class "tags"
+                        (%format-tags blog category)))))))
 
 (defmethod html-body ((index index))
   (with-accessors ((title title)

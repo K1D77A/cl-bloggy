@@ -31,23 +31,38 @@ new :root and override the values of :--colourone etc."))
      :--fsecondary "var(--colourfour)"
      :--fnormal "var(--colourtwo)"
      :--fsize "15pt"
+     :--fsizesmall "13pt"
      :--bordercolour "var(--colourtwo)")
     (".title"
-     :color "var(--fprimary)")
+     :color "var(--fprimary)"
+     :margin-bottom 1rem)
     (".date"
+     :font-size "var(--fsizesmall)"
+     :margin-top 1rem
+     :margin-bottom 3rem
      :color "var(--fsecondary)")
     (".description"
      :color "var(--fsecondary)")
     (".tags a"
-     :color "var(--fprimary)")
+     :color "var(--colourfive)")
+    (".subtitle"
+     :margin-bottom 0)
     (".http-code"
      :color "var(--fprimary)")
     (".message"
      :color "var(--fsecondary)")
+    (".return-links"
+     :margin-bottom 3rem)
     (a
      :color "var(--fsecondary)")
+    (".tags span"
+     :font-size "var(--fsizesmall)")
     (".tags a"
-     :color "var(--colourthree)")
+     :color "var(--fsecondary)")
+    (".tags span"
+     :margin-left 0.8rem)
+    (".tags span:first-child"
+     :margin-left 0)
     ("#home-link"
      :margin-right 1vw)
     (abbr

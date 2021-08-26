@@ -48,7 +48,8 @@
 (entry-test2)
 
 (easy-blog-entry (*server* my-entry  ("general") "I just don't understand." :test3
-                  (:month "June" :day 26 :minute 1))
+                  (:month "June" :day 26 :minute 1)
+                                                                            :subtitle "The subtitle")
   (:div :class "elp"
         (dolist (item (lorem-ipsum:paragraphs 5))
           (:p item))))
