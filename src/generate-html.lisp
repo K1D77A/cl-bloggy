@@ -144,14 +144,14 @@ superclass and then play with it that way, you dont want to end up breaking func
               (:div :class "index-entry"
                     (:a :href (process-uri entry :encode)
                         (:h2 :class "index-title title"
-                             (funcall (title entry) entry))
-                        (:h4 :class "index-tags tags"
-                             (%format-tags blog (category entry)))
-                        (:h3 :class "index-date date"
-                             (format-timestamp nil (date entry) :site))
-                        (:h4 :class "index-description description"
-                             (when (description entry)
-                               (funcall (description entry) entry))))))))))
+                             (funcall (title entry) entry)))
+                    (:h4 :class "index-description description"
+                         (when (description entry)
+                           (funcall (description entry) entry))
+                         (:h4 :class "index-tags tags"
+                              (%format-tags blog (category entry)))
+                         (:h3 :class "index-date date"
+                              (format-timestamp nil (date entry) :site)))))))))
 
 (defmethod html-body ((blog blog))
   (with-accessors ((title title)

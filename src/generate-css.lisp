@@ -30,6 +30,7 @@ new :root and override the values of :--colourone etc."))
      :--fprimary "var(--colourtwo)"
      :--fsecondary "var(--colourfour)"
      :--fnormal "var(--colourtwo)"
+     :--fsizelarge "20pt"
      :--fsize "15pt"
      :--fsizesmall "13pt"
      :--bordercolour "var(--colourtwo)")
@@ -112,11 +113,18 @@ new :root and override the values of :--colourone etc."))
   "Provide default css for all indexes and subclasses of index."
   `((".index-entry"
      :padding-left 10px
-     :margin-bottom 10px)
+     :margin-bottom 3rem)
     (".index-title"
-     :margin-bottom 3px)
+     :margin-bottom 0.3rem
+     :font-size "var(--fsizelarge)")
+    (".index-description"
+     :margin-bottom 0.7rem)
+    (".tags"
+     :font-size 15px
+     :margin-bottom 0.5rem)
     (".index-date"
-     :margin-left 5px)
+     :font-size 15px
+     :margin-bottom 1rem)
     (".index-entry:hover"
      :border-color "var(--bordercolour)"
      :border-left-style solid
