@@ -12,6 +12,8 @@ compile your new entry straight into the source written on your own machine.
 Ofcourse you could use a makefile so that you can just deploy the image anywhere with 
 all of your previous posts ready to go. 
 
+CL-BLOGGY is in use with its default theme ![@my blog](https://k1d77a.com/blog/main)
+
 
 # README needs a rewrite.
 if you want to try it, clone the repo to quicklisp/local-projects, register local projects 
@@ -22,17 +24,3 @@ if you want to try it, clone the repo to quicklisp/local-projects, register loca
 (start)
 ```
 Navigate to `http://127.0.0.1:4203/blog/main` 
-
-
-## Screenshot
-
-### Main page 
-![Screenshot](https://imgur.com/ydX0PrT.png "main")
-
-### Index page 
-
-![Screenshot](https://imgur.com/6MUih5Z.png "index")
-
-### Single entry
-
-![Screenshot](https://imgur.com/0FRTEoZ.png "entry")
