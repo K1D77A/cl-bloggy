@@ -15,6 +15,7 @@ creates new entries by writing HTML using spinneret."
                #:str
                #:xml-emitter
                #:do-urlencode
+               #:closer-mop
                #:local-time
                #:lorem-ipsum)
   :pathname "src"

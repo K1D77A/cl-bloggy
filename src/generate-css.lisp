@@ -30,9 +30,12 @@ new :root and override the values of :--colourone etc."))
      :--fprimary "var(--colourtwo)"
      :--fsecondary "var(--colourfour)"
      :--fnormal "var(--colourtwo)"
-     :--fsizelarge "20pt"
-     :--fsize "15pt"
-     :--fsizesmall "13pt"
+     :--entrypadding "1rem"
+     :--entrypaddingborder "0.7rem"
+     :--borderwidth "0.3rem"
+     :--fsizelarge "3.5rem"
+     :--fsize "2.5rem"
+     :--fsizesmall "1.8rem"
      :--bordercolour "var(--colourtwo)")
     (".title"
      :color "var(--fprimary)"
@@ -64,6 +67,8 @@ new :root and override the values of :--colourone etc."))
      :margin-left 0.8rem)
     (".tags span:first-child"
      :margin-left 0)
+    ("code"
+     :font-size "var(--fsizesmall)")
     ("#home-link"
      :margin-right 1vw)
     (abbr
@@ -84,26 +89,26 @@ new :root and override the values of :--colourone etc."))
      :margin-left 0
      :margin-right 0
      :max-height 100%
-     :height 100%)
-    (:media "screen and (min-width: 600px)"
-            (":root"
-             :color "red"
-             :--fsizelarge "35pt"
-             :--fsize "25pt"
-             :--fsizesmall "20pt"
-             ))
-    (:media "screen and (min-width: 1000px)"
-            (":root"
-             :color "red"
-             :--fsizelarge "65pt"
-             :--fsize "50pt"
-             :--fsizesmall "25pt"))
-    (:media "screen and (min-width: 1500px)"
-            (":root"
-             :color "red"
-             :--fsizelarge "35pt"
-             :--fsize "20pt"
-             :--fsizesmall "15pt"))))
+     :height 100%)))
+    ;; :--fsizelarge "3.5rem"
+    ;; :--fsize "2.5rem"
+    ;; :--fsizesmall "1.8rem"
+    ;; (:media "screen and (min-width: 600px)"
+    ;;         (":root"
+    ;;          :--fsizelarge "4rem"
+    ;;          :--fsize "3.5rem"
+    ;;          :--fsizesmall "2rem"
+    ;;          ))
+    ;; (:media "screen and (min-width: 1000px)"
+    ;;         (":root"
+    ;;          :--fsizelarge "5rem"
+    ;;          :--fsize "6rem"
+    ;;          :--fsizesmall "4rem"))
+    ;; (:media "screen and (min-width: 1500px)"
+    ;;         (":root"
+    ;;          :--fsizelarge "3.5rem"
+    ;;          :--fsize "2.5rem"
+    ;;          :--fsizesmall "1.8rem"))))
 
 (defmethod page-css append ((page entry))
   nil)
@@ -113,7 +118,7 @@ new :root and override the values of :--colourone etc."))
   `((".title-box"
      :margin-bottom 5vw)
     (".entry"
-     :padding-left 10px
+     :padding-left "var(--entrypadding)"
      :margin-bottom 5vh)
     (".title-and-icons"
      :display flex
@@ -125,13 +130,13 @@ new :root and override the values of :--colourone etc."))
     (".entry:hover"
      :border-color "var(--bordercolour)"
      :border-left-style solid
-     :border-left-width 3px
-     :padding-left 7px)))
+     :border-left-width "var(--borderwidth)"
+     :padding-left "var(--entrypaddingborder)")))
 
 (defmethod page-css append ((page index))
   "Provide default css for all indexes and subclasses of index."
   `((".index-entry"
-     :padding-left 10px
+     :padding-left "var(--entrypadding)"
      :margin-bottom 3rem)
     (".index-title"
      :margin-bottom 0.3rem
@@ -139,14 +144,14 @@ new :root and override the values of :--colourone etc."))
     (".index-description"
      :margin-bottom 0.7rem)
     (".tags"
-     :font-size 15px
+     :font-size "var(--fsizesmall)"
      :margin-bottom 0.5rem)
     (".index-date"
-     :font-size 15px
+     :font-size "var(--fsizesmall)"
      :margin-bottom 1rem)
     (".index-entry:hover"
      :border-color "var(--bordercolour)"
      :border-left-style solid
-     :border-left-width 3px
-     :padding-left 7px)))
+     :border-left-width "var(--borderwidth)"
+     :padding-left "var(--entrypaddingborder)")))
 
