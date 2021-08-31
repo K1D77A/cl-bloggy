@@ -117,3 +117,13 @@
   (:p "Unfortunately you have to drop the second line to the same column as the first for it to format correctly."))
 
 (entry-test6)
+
+(easy-blog-entry (*server* my-entry ("general" "programming" "common lisp" "lunamech")
+                  "LunaMech is finally FOSS software"
+                  :test7
+                  (:month "July" :day 8)
+                  :subtitle "Source and Website"
+                  :description "A quick demonstration of images and code.")
+  (:p "I have finally taken the time to extract all the hardcoded private keys and place them in a persistent library, meaning I am able to make LunaMech FOSS. LunaMech has been running on the "))
+
+(entry-test7)

@@ -102,40 +102,42 @@ new :root and override the values of :--colourone etc."))
      :height 100%)
     (:media "only screen and (max-width: 600px)"
             (":root"
-             :--fsizelarge "2rem"
-             :--fsize "1.8rem"
-             :--fsizesmall "1.2rem"
+             :--fsizelarge "5rem"
+             :--fsize "4rem"
+             :--fsizesmall "3rem"
              )
             (html
              :padding 1rem)
-            (h1 :font-size 4rem)
-            (h2 :font-size 3rem)
-            (h3 :font-size 3.5rem)
-            (h4 :font-size 3rem)
-            (h5 :font-size 2.5rem))
+            )
     (:media "only screen and (min-width: 600px)"
             (":root"
-             :--fsizelarge "3rem"
-             :--fsize "2.5rem"
-             :--fsizesmall "2rem"             
+             :--fsizelarge "5rem"
+             :--fsize "4rem"
+             :--fsizesmall "3rem"             
              ))
     (:media "only screen and (min-width: 768px)"
             (":root"
-             :--fsize "3rem"
-             :--fsizesmall "2rem"
+             :--fsize "4rem"
+             :--fsizesmall "3rem"
              ))    
     (:media "only screen and (min-width: 992px)"
             (":root"
-             :--fsize "2.7rem"
-             :--fsizesmall "1.8rem"))
-    (:media "only screen and (min-width: 1200px)"
+             :--fsize "4.5rem"
+             :--fsizesmall "3.5rem"))
+    (:media "only screen and (min-width: 1200px) and (orientation:landscape)"
             (":root"
              :--fsizelarge "3.5rem"
              :--fsize "2.5rem"
-             :--fsizesmall "1.5rem"))))
+             :--fsizesmall "1.5rem"))
+    (:media "only screen and (min-width: 1200px) and (orientation:portrait)"
+            (":root"
+             :--fsizelarge "4.5rem"
+             :--fsize "4rem"
+             :--fsizesmall "3.5rem"))))
 
 (defmethod page-css append ((page entry))
-  nil)
+  `((".content"
+     :margin-bottom 5rem)))
 
 (defmethod page-css append ((page blog))
   "Provide default css for all blogs and subclasses of blog."
