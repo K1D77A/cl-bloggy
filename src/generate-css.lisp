@@ -40,6 +40,11 @@ new :root and override the values of :--colourone etc."))
     (".title"
      :color "var(--fprimary)"
      :margin-bottom 1rem)
+    (h1 :font-size 6rem)
+    (h2 :font-size 5rem)
+    (h3 :font-size 4rem)
+    (h4 :font-size 3.5rem)
+    (h5 :font-size 3rem)
     (".date"
      :font-size "var(--fsizesmall)"
      :margin-top 1rem
@@ -70,7 +75,10 @@ new :root and override the values of :--colourone etc."))
     ("code"
      :font-size "var(--fsizesmall)")
     ("#home-link"
-     :margin-right 1vw)
+     :margin-right 1vw
+     :font-size "var(--fsizelarge)")
+    ("#index-link"
+     :font-size "var(--fsizelarge)")
     (abbr
      :font-size "var(--fsize)")
     (summary
@@ -81,34 +89,50 @@ new :root and override the values of :--colourone etc."))
      :font-size "var(--fsize)")
     (pre
      :border-color "var(--fsecondary)")
+    (body
+     :width 100%
+     :display block)
     (html
      :background-color "var(--background)"
-     :padding 5vw
-     :padding-right 10vw
-     :color "var(--fnormal)"     
+     :padding 5rem 
+     :color "var(--fnormal)"
      :margin-left 0
      :margin-right 0
      :max-height 100%
-     :height 100%)))
-    ;; :--fsizelarge "3.5rem"
-    ;; :--fsize "2.5rem"
-    ;; :--fsizesmall "1.8rem"
-    ;; (:media "screen and (min-width: 600px)"
-    ;;         (":root"
-    ;;          :--fsizelarge "4rem"
-    ;;          :--fsize "3.5rem"
-    ;;          :--fsizesmall "2rem"
-    ;;          ))
-    ;; (:media "screen and (min-width: 1000px)"
-    ;;         (":root"
-    ;;          :--fsizelarge "5rem"
-    ;;          :--fsize "6rem"
-    ;;          :--fsizesmall "4rem"))
-    ;; (:media "screen and (min-width: 1500px)"
-    ;;         (":root"
-    ;;          :--fsizelarge "3.5rem"
-    ;;          :--fsize "2.5rem"
-    ;;          :--fsizesmall "1.8rem"))))
+     :height 100%)
+    (:media "only screen and (max-width: 600px)"
+            (":root"
+             :--fsizelarge "2rem"
+             :--fsize "1.8rem"
+             :--fsizesmall "1.2rem"
+             )
+            (html
+             :padding 1rem)
+            (h1 :font-size 4rem)
+            (h2 :font-size 3rem)
+            (h3 :font-size 3.5rem)
+            (h4 :font-size 3rem)
+            (h5 :font-size 2.5rem))
+    (:media "only screen and (min-width: 600px)"
+            (":root"
+             :--fsizelarge "3rem"
+             :--fsize "2.5rem"
+             :--fsizesmall "2rem"             
+             ))
+    (:media "only screen and (min-width: 768px)"
+            (":root"
+             :--fsize "3rem"
+             :--fsizesmall "2rem"
+             ))    
+    (:media "only screen and (min-width: 992px)"
+            (":root"
+             :--fsize "2.7rem"
+             :--fsizesmall "1.8rem"))
+    (:media "only screen and (min-width: 1200px)"
+            (":root"
+             :--fsizelarge "3.5rem"
+             :--fsize "2.5rem"
+             :--fsizesmall "1.5rem"))))
 
 (defmethod page-css append ((page entry))
   nil)
@@ -116,10 +140,10 @@ new :root and override the values of :--colourone etc."))
 (defmethod page-css append ((page blog))
   "Provide default css for all blogs and subclasses of blog."
   `((".title-box"
-     :margin-bottom 5vw)
+     :margin-bottom 5rem)
     (".entry"
      :padding-left "var(--entrypadding)"
-     :margin-bottom 5vh)
+     :margin-bottom 5rem)
     (".title-and-icons"
      :display flex
      :flex-display row)
