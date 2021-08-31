@@ -12,7 +12,7 @@ compile your new entry straight into the source written on your own machine.
 Ofcourse you could use a makefile so that you can just deploy the image anywhere with 
 all of your previous posts ready to go. 
 
-CL-BLOGGY is in use with its default theme ![@my blog](https://k1d77a.com/blog/main)
+CL-BLOGGY is in use with its default theme [@my blog](https://k1d77a.com/blog/main)
 
 
 # README needs a rewrite.
