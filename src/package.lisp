@@ -29,6 +29,7 @@
    #:atom-request
 
    ;;entry class
+   #:unpublished-entry
    #:entry
    #:date
    #:title
