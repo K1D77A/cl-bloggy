@@ -80,6 +80,11 @@
     :initarg :blog
     :type blog)))
 
+(defclass unpublished-entry (entry)
+  ()
+  (:documentation "An entry that doesn't get published to the blog main page or RSS feeds
+however a URL is created so it can be viewed on the blog."))
+
 (defmethod print-object ((ob entry) stream)
   (print-unreadable-object (ob stream) :type t
     (with-accessors ((category category)

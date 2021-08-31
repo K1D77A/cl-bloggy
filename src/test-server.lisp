@@ -18,6 +18,9 @@
 (defclass my-index (index my-blog)
   ())
 
+(defclass my-unpublished (unpublished-entry entry)
+  ())
+
 (defparameter *server* (make-instance 'bloggy-acceptor                                      
                                       :document-root "./blog/"
                                       :port 4203 :name 'main))
@@ -93,3 +96,24 @@
             :width \"50\")))")
 
 
+(easy-blog-entry (*server* my-unpublished ("general" "programming" "common lisp" "bloggy")
+                  "Demonstrating images and code in CL-BLOGGY2"
+                  :test6
+                  (:month "July" :day 3)
+                  :subtitle "How-to insert images and code into CL-BLOGGY posts."
+                  :description "A quick demonstration of images and code.")
+  (:p "To insert an image into cl-bloggy simply use an (:img ) like this:")
+  (:img :src (url (find-content entry :rss-png))
+        :width "50")
+  (:br)
+  (:pre
+   (:code 
+    "(:img :src (url (find-content entry :rss-png))
+                :width \"50\")"))
+  (:p "How did I enter that code?? Like this:")
+  (:br)
+  (:pre
+   (:code (%5-code-block)))
+  (:p "Unfortunately you have to drop the second line to the same column as the first for it to format correctly."))
+
+(entry-test6)

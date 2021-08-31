@@ -84,7 +84,26 @@ new :root and override the values of :--colourone etc."))
      :margin-left 0
      :margin-right 0
      :max-height 100%
-     :height 100%)))
+     :height 100%)
+    (:media "screen and (min-width: 600px)"
+            (":root"
+             :color "red"
+             :--fsizelarge "35pt"
+             :--fsize "25pt"
+             :--fsizesmall "20pt"
+             ))
+    (:media "screen and (min-width: 1000px)"
+            (":root"
+             :color "red"
+             :--fsizelarge "65pt"
+             :--fsize "50pt"
+             :--fsizesmall "25pt"))
+    (:media "screen and (min-width: 1500px)"
+            (":root"
+             :color "red"
+             :--fsizelarge "35pt"
+             :--fsize "20pt"
+             :--fsizesmall "15pt"))))
 
 (defmethod page-css append ((page entry))
   nil)

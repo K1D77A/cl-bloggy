@@ -28,9 +28,11 @@ single ' marks. This may change."
      (funcall title blog) (format nil "~A~A" domain url)
      :description
      (funcall description blog) :language language)
-    (mapc (lambda (entry)
-            (generate-rss stream entry))
-          entries)))
+    (let ((unpub-class (find-class 'unpublished-entry)))
+      (mapc (lambda (entry)
+              (unless (c2mop:subclassp (class-of entry) unpub-class)
+                (generate-rss stream entry)))
+            entries))))
 
 (defmethod generate-rss (stream (entry entry))
   "Generates the rss for an ENTRY object, fills in the default values and in the case that
